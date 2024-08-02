@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   const data = await request.formData()
 
   // checking input
-  let presetName: string | null = data.get('presetName') as unknown as string
+  let presetId: string | null = data.get('presetId') as unknown as string
   const demand: File | null = data.get('demand') as unknown as File
   const vehicles: File | null = data.get('vehicles') as unknown as File
   const vehiclesFuels: File | null = data.get('vehiclesFuels') as unknown as File
@@ -19,10 +19,10 @@ export async function POST(request: NextRequest) {
   if (!vehicles || !vehiclesFuels || !fuels || !costProfiles) {
     return NextResponse.json({ success: false })
   }
-
+  
   // Managing Folder
-  if (presetName){
-    let curDir = join(PRESET_DIR, presetName)
+  if (presetId){
+    let curDir = join(PRESET_DIR, presetId)
     try {
       await access(curDir)
       // return NextResponse.json({ success: false, message: "The ID has been used" })
@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
   }
   else {
     while (true){
-      presetName = createRandomString(3) + "-" + createRandomString(4) + "-" + createRandomString(3)
-      let curDir = join(PRESET_DIR, presetName)
+      presetId = createRandomString(3) + "-" + createRandomString(4) + "-" + createRandomString(3)
+      let curDir = join(PRESET_DIR, presetId)
       try {
         await access(curDir)
       } catch (error) {
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Storing files
-  let curDir = join(PRESET_DIR, presetName)
+  let curDir = join(PRESET_DIR, presetId)
   writeToFile(vehicles, join(curDir, "vehicles.csv"))
   writeToFile(vehiclesFuels, join(curDir, "vehicles_fuels.csv"))
   writeToFile(fuels, join(curDir, "fuels.csv"))
@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
   if (demand){ writeToFile(demand, join(curDir, "demand.csv")) }
   if (carbonEmissions){ writeToFile(carbonEmissions, join(curDir, "carbon_emissions.csv")) }
 
-  
-  // console.log(`open ${path} to see the uploaded file`)
 
-  return NextResponse.json({ success: true, id: presetName })
+
+
+  return NextResponse.json({ success: true, id: presetId })
 }
