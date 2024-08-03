@@ -3,7 +3,12 @@ import { createSlice } from '@reduxjs/toolkit';
 export const dataSlice = createSlice({
   name: 'data',
   initialState: {
-    value: {},
+    carbonEmissions: {},
+    costProfiles: {},
+    demand: {},
+    fuels: {},
+    vehiclesFuels: {},
+    vehicles: {},
     fleet: [],
     startYear: 0,
     endYear: 0,

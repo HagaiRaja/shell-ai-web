@@ -15,13 +15,19 @@ export function Content({ presetId }) {
     .then((response) => response.json())
     .then((data) => {
       if (data.success){
-        dispatch(setValue({type: "storeVar", target: "value", payload: data.data}))
+        dispatch(setValue({type: "storeVar", target: "carbonEmissions", payload: data.data.carbonEmissions}))
+        dispatch(setValue({type: "storeVar", target: "costProfiles", payload: data.data.costProfiles}))
+        dispatch(setValue({type: "storeVar", target: "demand", payload: data.data.demand}))
+        dispatch(setValue({type: "storeVar", target: "fuels", payload: data.data.fuels}))
+        dispatch(setValue({type: "storeVar", target: "vehiclesFuels", payload: data.data.vehiclesFuels}))
+        dispatch(setValue({type: "storeVar", target: "vehicles", payload: data.data.vehicles}))
+
         const availYear = data.data.vehicles.rows.map((e) => e[3]);
         dispatch(setValue({type: "storeVar", target: "startYear", payload: Math.min(...availYear)}))
         dispatch(setValue({type: "storeVar", target: "endYear", payload: Math.max(...availYear)}))
       }else{
         console.log(data)
-        dispatch(setValue({type: "storeVar", target: "value", payload: {vehicles: null}}))
+        dispatch(setValue({type: "storeVar", target: "vehicles", payload: null}))
       }
     });
 

@@ -2,45 +2,59 @@
 import { Row, Col, Form, Button, Accordion } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { setValue } from '../../store/dataSlice';
 
 export function Fleet() {
-  const allData = useSelector((state) => state.data.value);
+  const vehicles = useSelector((state) => state.data.vehicles);
   const [availCarIds, setAvailCarIds] = useState([])
   const [curCarID, setCurCarID] = useState("")
   const [curCarYear, setCurCarYear] = useState(0)
   const [curCarPrice, setCurCarPrice] = useState(0)
   const [curCarQty, setCurCarQty] = useState(1)
+  const [curCarExpectedPrice, setCurCarExpectedPrice] = useState(1)
+  const [releaseYears, setReleaseYears] = useState([])
+  const [minYear, setMinYear] = useState(0)
   const [isChanged, setIsChanged] = useState(false)
   const [isChangedQty, setIsChangedQty] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   const selectedStartYear = useSelector((state) => state.data.startYear);
   const dispatch = useDispatch();
   const fleet = useSelector((state) => state.data.fleet);
 
-  let minYear = 0
-  if (allData?.vehicles) {
-    const availYear = allData.vehicles.rows.map((e) => e[3]);
-    minYear = Math.min(...availYear);
-    if (minYear == selectedStartYear) return <></>;
-  }
-  let releaseYears = []
-  for (let i = minYear; i < selectedStartYear; i++) {
-    releaseYears.push(i)
-  }
+  useEffect(() => {
+    if (vehicles.rows) {
+      if (!isLoaded){
+        setIsLoaded(true)
+        const availYear = vehicles.rows.map((e) => e[3]);
+        setMinYear(Math.min(...availYear));
+      }
+
+      let years = []
+      for (let i = minYear; i < selectedStartYear; i++) {
+        years.push(i)
+      }
+      setReleaseYears(years)
+
+      if (curCarID != "") {
+        const car = vehicles.rows.filter((a) => a[0] == curCarID)
+        setCurCarExpectedPrice(car[0][4])
+      }
+    }
+  }, [selectedStartYear, vehicles.rows, curCarID, minYear, isLoaded]);
 
   const adjustAvailCarIds = (e) => {
     console.log(e.target.value)
     const newYear = parseInt(e.target.value);
     setCurCarYear(newYear);
-    setAvailCarIds(allData.vehicles.rows.filter((a) => a[3] == newYear));
+    setAvailCarIds(vehicles.rows.filter((a) => a[3] == newYear));
   };
 
   const adjustCurCarPrice = (e) => {
     setCurCarID(e.target.value)
-    const car = allData.vehicles.rows.filter((a) => a[0] == e.target.value)
+    const car = vehicles.rows.filter((a) => a[0] == e.target.value)
     setCurCarPrice(car[0][4])
     setCurCarQty(1)
     setIsChanged(false)
@@ -57,12 +71,7 @@ export function Fleet() {
     dispatch(setValue({type: "removeFleet", payload: fleetId}))
   };
 
-  let curCarExpectedPrice = 0
-  if (curCarID != "") {
-    const car = allData.vehicles.rows.filter((a) => a[0] == curCarID)
-    curCarExpectedPrice = car[0][4]
-  }
-
+  if (isLoaded && minYear === selectedStartYear) return <></>;
   return <>
     <Accordion defaultActiveKey="demand" className='mb-2'>
         <Accordion.Item eventKey="demand">
@@ -97,6 +106,7 @@ export function Fleet() {
                   <Form.Label>Price</Form.Label>
                   <Form.Control type="number"
                     name="price"
+                    min={1}
                     value={(isChanged) ? curCarPrice: ""}
                     onChange={(e) => {
                       setCurCarPrice(e.target.value)
