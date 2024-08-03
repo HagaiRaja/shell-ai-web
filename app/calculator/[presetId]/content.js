@@ -15,19 +15,19 @@ export function Content({ presetId }) {
     .then((response) => response.json())
     .then((data) => {
       if (data.success){
-        dispatch(setValue({type: "replace", payload: data.data}))
+        dispatch(setValue({type: "storeVar", target: "value", payload: data.data}))
         const availYear = data.data.vehicles.rows.map((e) => e[3]);
         dispatch(setValue({type: "storeVar", target: "startYear", payload: Math.min(...availYear)}))
         dispatch(setValue({type: "storeVar", target: "endYear", payload: Math.max(...availYear)}))
       }else{
         console.log(data)
-        dispatch(setValue({type: "replace", payload: {vehicles: null}}))
+        dispatch(setValue({type: "storeVar", target: "value", payload: {vehicles: null}}))
       }
     });
 
   return (
     <div>
-      <Container className='p-2 mt-4 mb-2 w-50'>
+      <Container className='p-2 mt-4 mb-2 w-50' style={{minWidth: '700px'}}>
         <h1 className='text-center'>Fleet Planner</h1>
         <YearSelector />
         <MyStatus />
@@ -54,7 +54,7 @@ export function Content({ presetId }) {
 
             <InputGroup className="mb-3">
               <InputGroup.Text id="basic-addon3">
-                Max sell fleet age:
+                Max age fleet has to sell:
               </InputGroup.Text>
               <Form.Control id="basic-url" type="number" defaultValue={10} min={1} max={100} aria-describedby="basic-addon3" />
               <InputGroup.Text>year(s)</InputGroup.Text>

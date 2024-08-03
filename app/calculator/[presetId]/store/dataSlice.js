@@ -4,6 +4,7 @@ export const dataSlice = createSlice({
   name: 'data',
   initialState: {
     value: {},
+    fleet: [],
     startYear: 0,
     endYear: 0,
   },
@@ -16,11 +17,21 @@ export const dataSlice = createSlice({
     },
     setValue: (state, action) => {
       switch (action.payload.type) {
-        case 'replace': {
-          state.value = action.payload.payload
-        }
         case 'storeVar': {
           state[action.payload.target] = action.payload.payload
+          return state
+        }
+        case 'appendFleet': {
+          return {
+            ...state,
+            fleet: [...state.fleet, action.payload.payload]
+           }
+        }
+        case 'removeFleet': {
+          return {
+            ...state,
+            fleet: state.fleet.filter(item => item[4] !== action.payload.payload)
+           }
         }
       }
     },

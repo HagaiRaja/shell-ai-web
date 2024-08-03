@@ -1,5 +1,5 @@
 
-import { Row, Col, Form } from 'react-bootstrap';
+import { Row, Col, Form, FloatingLabel } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react'
@@ -57,22 +57,36 @@ export function YearSelector() {
     <Row className='mb-4'>
       <h4>Year Range</h4>
       <Col>
-        <Form.Select aria-label="Default select example"
-                    onChange={adjustEndYear}
-                    value={selectedStartYear}>
-          {startYears.map(year => (
-            <option key={year} value={year}>{year}</option>
-          ))}
-        </Form.Select>
+        <FloatingLabel
+          controlid="startYear"
+          label="Start Year"
+          className="mb-3"
+        >
+          <Form.Select aria-label="Default select example"
+                      onChange={adjustEndYear}
+                      controlid="startYear"
+                      value={selectedStartYear}>
+            {startYears.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </Form.Select>
+        </FloatingLabel>
       </Col>
       <Col>
-        <Form.Select aria-label="Default select example"
-                    onChange={updateEndYear}
-                    value={selectedEndYear}>
-          {endYears.map(year => (
-            <option key={year} value={year}>{year}</option>
-          ))}
-        </Form.Select>
+        <FloatingLabel
+          controlid="enyYear"
+          label="End Year"
+          className="mb-3"
+        >
+          <Form.Select aria-label="Default select example"
+                      onChange={updateEndYear}
+                      controlid="enyYear"
+                      value={selectedEndYear}>
+            {endYears.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </Form.Select>
+        </FloatingLabel>
       </Col>
     </Row>
   </>
