@@ -12,6 +12,8 @@ export const dataSlice = createSlice({
     fleet: [],
     startYear: 0,
     endYear: 0,
+    startEmission: 0,
+    emissionReductionTarget: 0,
   },
   reducers: {
     increment: (state) => {

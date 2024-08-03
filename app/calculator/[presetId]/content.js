@@ -69,7 +69,7 @@ export function Content({ presetId }) {
         <h1 className='text-center'>Fleet Planner</h1>
         <YearSelector />
         <MyStatus />
-        <MarketStatus />
+        {/* <MarketStatus /> */}
 
         <Row className='mt-3'>
           <h6>Rules:</h6>
@@ -110,7 +110,7 @@ export function Content({ presetId }) {
 
         <hr></hr>
         <Col className='text-center mb-4'>
-          <Button variant="primary" type="submit" onClick={calculate}>
+          <Button variant="primary" className='btn-shell' type="submit" onClick={calculate}>
             Calculate
           </Button>
         </Col>

@@ -1,0 +1,13 @@
+.accordion-button:not(.collapsed) {
+    background-color: #ffd600 !important;
+}
+
+.btn-shell {
+    background-color: #ffd600 !important;
+    color: #000 !important;
+    border: none !important;
+}
+
+.btn-shell:hover {
+    background-color: #ffb704 !important;
+}
