@@ -25,10 +25,10 @@ export function Fleet() {
   const fleet = useSelector((state) => state.data.fleet);
 
   useEffect(() => {
-    if (vehicles.rows) {
+    if (vehicles.length) {
       if (!isLoaded){
         setIsLoaded(true)
-        const availYear = vehicles.rows.map((e) => e[3]);
+        const availYear = vehicles.map((e) => e[3]);
         setMinYear(Math.min(...availYear));
       }
 
@@ -39,22 +39,22 @@ export function Fleet() {
       setReleaseYears(years)
 
       if (curCarID != "") {
-        const car = vehicles.rows.filter((a) => a[0] == curCarID)
+        const car = vehicles.filter((a) => a[0] == curCarID)
         setCurCarExpectedPrice(car[0][4])
       }
     }
-  }, [selectedStartYear, vehicles.rows, curCarID, minYear, isLoaded]);
+  }, [selectedStartYear, vehicles, curCarID, minYear, isLoaded]);
 
   const adjustAvailCarIds = (e) => {
     console.log(e.target.value)
     const newYear = parseInt(e.target.value);
     setCurCarYear(newYear);
-    setAvailCarIds(vehicles.rows.filter((a) => a[3] == newYear));
+    setAvailCarIds(vehicles.filter((a) => a[3] == newYear));
   };
 
   const adjustCurCarPrice = (e) => {
     setCurCarID(e.target.value)
-    const car = vehicles.rows.filter((a) => a[0] == e.target.value)
+    const car = vehicles.filter((a) => a[0] == e.target.value)
     setCurCarPrice(car[0][4])
     setCurCarQty(1)
     setIsChanged(false)

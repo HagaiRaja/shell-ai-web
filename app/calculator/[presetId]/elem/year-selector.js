@@ -20,9 +20,9 @@ export function YearSelector() {
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    if (!isLoaded && vehicles.rows) {
+    if (!isLoaded && vehicles.length) {
       setIsLoaded(true)
-      const availYear = vehicles.rows?.map((e) => e[3]);
+      const availYear = vehicles?.map((e) => e[3]);
       const minYear = Math.min(...availYear)
       const maxYear = Math.max(...availYear)
       setStartYear(minYear)

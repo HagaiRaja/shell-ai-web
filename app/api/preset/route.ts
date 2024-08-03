@@ -1,7 +1,8 @@
 import { mkdir, access } from 'fs/promises'
 import { NextRequest, NextResponse } from 'next/server'
 import { join } from 'path'
-import { createRandomString, writeToFile } from '@/app/utils'
+import { createRandomString } from '@/app/utils'
+import { writeToFile } from '@/app/utils_async'
 import { PRESET_DIR } from '@/app/constant'
 
 export async function POST(request: NextRequest) {

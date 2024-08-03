@@ -3,12 +3,12 @@ import { createSlice } from '@reduxjs/toolkit';
 export const dataSlice = createSlice({
   name: 'data',
   initialState: {
-    carbonEmissions: {},
-    costProfiles: {},
-    demand: {},
-    fuels: {},
-    vehiclesFuels: {},
-    vehicles: {},
+    carbonEmissions: [],
+    costProfiles: [],
+    demand: [],
+    fuels: [],
+    vehiclesFuels: [],
+    vehicles: [],
     fleet: [],
     startYear: 0,
     endYear: 0,
@@ -36,6 +36,21 @@ export const dataSlice = createSlice({
           return {
             ...state,
             fleet: state.fleet.filter(item => item[4] !== action.payload.payload)
+           }
+        }
+        case 'updateDemand': {
+          console.log(action)
+          const rowIndex = state.demand.findIndex(item => item[4] === action.payload.target);
+          const newRow = [...state.demand[rowIndex]];
+          newRow[3] = action.payload.payload;
+
+          return {
+            ...state,
+            demand: [
+              ...state.demand.slice(0, rowIndex),
+              newRow,
+              ...state.demand.slice(rowIndex + 1)
+            ]
            }
         }
       }

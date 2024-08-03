@@ -1,35 +1,67 @@
 import React from 'react';
 import { Button, Container, Row, Col, Form, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react'
 
 import { YearSelector } from "./elem/year-selector";
 import { MyStatus } from "./elem/my-status";
 import { MarketStatus } from "./elem/market-status";
 import { setValue } from './store/dataSlice';
 import { URL } from '@/app/constant'
+import { createRandomString } from '@/app/utils';
 
 export function Content({ presetId }) {
   const dispatch = useDispatch();
-  fetch(URL + "/api/preset/" + presetId)
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success){
-        dispatch(setValue({type: "storeVar", target: "carbonEmissions", payload: data.data.carbonEmissions}))
-        dispatch(setValue({type: "storeVar", target: "costProfiles", payload: data.data.costProfiles}))
-        dispatch(setValue({type: "storeVar", target: "demand", payload: data.data.demand}))
-        dispatch(setValue({type: "storeVar", target: "fuels", payload: data.data.fuels}))
-        dispatch(setValue({type: "storeVar", target: "vehiclesFuels", payload: data.data.vehiclesFuels}))
-        dispatch(setValue({type: "storeVar", target: "vehicles", payload: data.data.vehicles}))
+  const allData = useSelector((state) => state.data);
+  const [isLoaded, setIsLoaded] = useState(false)
 
-        const availYear = data.data.vehicles.rows.map((e) => e[3]);
-        dispatch(setValue({type: "storeVar", target: "startYear", payload: Math.min(...availYear)}))
-        dispatch(setValue({type: "storeVar", target: "endYear", payload: Math.max(...availYear)}))
-      }else{
-        console.log(data)
-        dispatch(setValue({type: "storeVar", target: "vehicles", payload: null}))
-      }
-    });
+  useEffect(() => {
+    if (!isLoaded){
+      setIsLoaded(true)
+      fetch(URL + "/api/preset/" + presetId)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success){
+            dispatch(setValue({type: "storeVar", target: "carbonEmissions",
+                                payload: addId(data.data.carbonEmissions.rows)}))
+            dispatch(setValue({type: "storeVar", target: "costProfiles",
+                                payload: addId(data.data.costProfiles.rows)}))
+            dispatch(setValue({type: "storeVar", target: "demand",
+                                payload: addId(data.data.demand.rows)}))
+            dispatch(setValue({type: "storeVar", target: "fuels",
+                                payload: addId(data.data.fuels.rows)}))
+            dispatch(setValue({type: "storeVar", target: "vehiclesFuels",
+                                payload: addId(data.data.vehiclesFuels.rows)}))
+            dispatch(setValue({type: "storeVar", target: "vehicles",
+                                payload: addId(data.data.vehicles.rows)}))
+
+            if (data.data.vehicles.rows) {
+              const availYear = data.data.vehicles.rows.map((e) => e[3]);
+              dispatch(setValue({type: "storeVar", target: "startYear", payload: Math.min(...availYear)}))
+              dispatch(setValue({type: "storeVar", target: "endYear", payload: Math.max(...availYear)}))
+            }
+          }else{
+            console.log(data)
+            dispatch(setValue({type: "storeVar", target: "vehicles", payload: null}))
+          }
+        }
+      );
+    }
+
+  }, [isLoaded, dispatch, presetId]);
+
+  const addId = (arr) => {
+    if (!arr) return arr
+    arr = arr.map((e) => {
+      return [...e, createRandomString(5)]
+    })
+    return arr
+  }
+
+  const calculate = () => {
+    console.log(allData)
+  }
 
   return (
     <div>
@@ -78,7 +110,7 @@ export function Content({ presetId }) {
 
         <hr></hr>
         <Col className='text-center mb-4'>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" onClick={calculate}>
             Calculate
           </Button>
         </Col>
