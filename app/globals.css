@@ -11,3 +11,13 @@
 .btn-shell:hover {
     background-color: #ffb704 !important;
 }
+
+.btn-add {
+    background-color: #1b3d7f !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-add:hover {
+    background-color: #ffb704 !important;
+}

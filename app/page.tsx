@@ -129,7 +129,7 @@ export default function Home() {
             </Form.Group>
 
             <Col className='text-center mb-4'>
-              <Button variant="primary" type="submit">
+              <Button variant="primary" className="btn-shell" type="submit">
                 Submit
               </Button>
             </Col>

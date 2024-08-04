@@ -128,7 +128,7 @@ export function Fleet() {
                     placeholder={'Total qty'} />
                 </Col>
                 <Col xs={1} className='pt-4'>
-                  <Button variant="primary" type="submit" onClick={addFleet}>
+                  <Button variant="primary" className="btn-add" type="submit" onClick={addFleet}>
                     +
                   </Button>
                 </Col>
