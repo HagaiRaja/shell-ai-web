@@ -21,6 +21,7 @@ export function Content({ presetId }) {
     console.log("ENV", URL)
     if (!isLoaded){
       setIsLoaded(true)
+      dispatch(setValue({type: "storeVar", target: "presetId", payload: presetId}))
       fetch(URL + "/api/preset/" + presetId)
         .then((response) => response.json())
         .then((data) => {
@@ -44,7 +45,6 @@ export function Content({ presetId }) {
               dispatch(setValue({type: "storeVar", target: "endYear", payload: Math.max(...availYear)}))
             }
           }else{
-            // console.log(data)
             dispatch(setValue({type: "storeVar", target: "vehicles", payload: null}))
           }
         }
@@ -141,7 +141,6 @@ export function Content({ presetId }) {
 
     const sort_best_usage = (year, car_list) => {
       let data = []
-      // console.log(year, car_list)
       car_list.map((e) => {
         const [car, num] = e
         const cost_per_km = car.consumption*fuelCache[year][car.fuel].cost
@@ -212,7 +211,7 @@ export function Content({ presetId }) {
     }
 
     const get_profile_age = (cur_year, car_year) => {
-      const profileLength = Object.keys(a).length
+      const profileLength = Object.keys(costProfiles).length
       if ((cur_year - car_year) >= profileLength){
         return costProfiles[profileLength-1].costPerYear 
       }
@@ -266,7 +265,7 @@ export function Content({ presetId }) {
 
       // TODO: change 20 to the rule 
       let plan_to_sell = Math.floor(total_car*20/100)
-      let car_left = {}, target_sell = {}, updated_actions = []
+      let car_left = {}, target_sell = {}, updated_actions = [], new_buy_actions = []
       console.log("comparison", actions[0][0], comparison)
       comparison.map((el) => {
         const [prio, num, car_id1, car_id2, action] = el
@@ -285,7 +284,7 @@ export function Content({ presetId }) {
         else if (num > plan_to_sell){ // sell some
           // update actions
           updated_actions.push([year, car_id, num-plan_to_sell, "Use", fuel, d, dist])
-          updated_actions.push([year, ID2, plan_to_sell, "Buy", "", "", 0])
+          new_buy_actions.push([year, ID2, plan_to_sell, "Buy", "", "", 0])
           updated_actions.push([year, ID2, plan_to_sell, "Use", car_f2, d, dist])
           // update car_left
           if (!(car_s2 in car_left)) car_left[car_s2] = []
@@ -298,7 +297,7 @@ export function Content({ presetId }) {
         }
         else { // sell all
           // update actions
-          updated_actions.push([year, ID2, num, "Buy", "", "", 0])
+          new_buy_actions.push([year, ID2, num, "Buy", "", "", 0])
           updated_actions.push([year, ID2, num, "Use", car_f2, d, dist])
           // update car_left
           if (!(car_s2 in car_left)) car_left[car_s2] = []
@@ -309,7 +308,7 @@ export function Content({ presetId }) {
           plan_to_sell -= num
         }
       })
-      return [car_left, target_sell, updated_actions]
+      return [car_left, target_sell, new_buy_actions, updated_actions]
     }
 
     const get_emission_comparison = (car_id, year) => {
@@ -396,14 +395,48 @@ export function Content({ presetId }) {
               
       return [total_emission, final_actions]
     }
-    
+
+    const summarize_submission = (df) => {
+      const act = {}
+      df.map((row) => {
+        const ID = `${row[0]}-${row[1]}-${row[3]}-${row[4]}-${row[5]}-${row[6]}`
+        if (!(ID in act)) act[ID] = 0
+        act[ID] += row[2]
+      })
+
+      let actions = []
+      for (const [ID, val] of Object.entries(act)) {
+        const [year, car_id, action, fuel, dist, dist_per] = ID.split("-")
+        const [car_f, car_s, car_y] = car_id.split("_")
+        actions.push([parseInt(year), car_s, dist, car_id, act[ID], action, fuel, parseFloat(dist_per)])
+      }
+      actions.sort()
+  
+      let new_act = []
+      for (let year = allData.startYear; year <= allData.endYear; year++) {
+        const buy = actions.filter((act) => ((act[0] === year) && (act[5] === "Buy")))
+        buy.map((a) => {
+          new_act.push([a[0], a[3], a[4], a[5], a[6], a[2], a[7]])
+        })
+        const use = actions.filter((act) => ((act[0] === year) && (act[5] === "Use")))
+        use.map((a) => {
+          new_act.push([a[0], a[3], a[4], a[5], a[6], a[2], a[7]])
+        })
+        const sell = actions.filter((act) => ((act[0] === year) && (act[5] === "Sell")))
+        sell.map((a) => {
+          new_act.push([a[0], a[3], a[4], a[5], a[6], a[2], a[7]])
+        })
+      }
+              
+      return new_act
+    }
+
     // implement search
     const search2 = async () => {
       let actions2 = []
       let cars_step2 = structuredClone(curCar)
       for (let year = allData.startYear; year <= allData.endYear; year++) {
         let car_left = structuredClone(cars_step2)
-        console.log(year, "starting car", cars_step2)
         
         const carbon_reduced = ((100-allData.emissionReductionTarget)/100)**(year-allData.startYear)
         const target_emission = allData.startEmission*carbon_reduced
@@ -414,7 +447,7 @@ export function Content({ presetId }) {
         let all_use_actions = []
         let all_buy_actions = []
         for (const [s, s_demand] of Object.entries(cur_demand)) {
-          const buy_actions = {}, use_actions = []
+          let buy_actions = {}, use_actions = []
 
           const can_use_car = sort_best_usage(year, car_left[s])
           const [avail_car, four_ineff] = get_4inefficient_car(can_use_car)
@@ -480,39 +513,47 @@ export function Content({ presetId }) {
 
             }
           }
-
+          
           for (const [car_id, num] of Object.entries(buy_actions)) {
             all_buy_actions.push([year, car_id.split("-")[0], num, "Buy", "", "", 0])
             car_left[s].push([get_car_by_id(car_id), num])
           }
-
+          
           all_use_actions.push(...use_actions)
         }
 
-        console.log(year, "buy", all_buy_actions)
-        console.log(year, "use", all_use_actions)
-
         // removing 20% cars
         if (year !== allData.startYear) {
-          const [new_car_left, target_sell, updated_use_actions] = await remove_20percent_usebase(all_use_actions)
+          const [new_car_left, target_sell, new_buy_actions, updated_use_actions] = await remove_20percent_usebase(all_use_actions)
+          let all_sell_actions = []
           for (const [car_id, num] of Object.entries(target_sell)) {
             const [ID, car_f] = fuelID_to_carID(car_id)
-            console.log("target sell car", year, ID, target_sell[car_id])
-            actions2.push((year-1, ID, target_sell[car_id], "Sell", "", "", 0))
+            all_sell_actions.push([year-1, ID, target_sell[car_id], "Sell", "", "", 0])
           }
           all_use_actions = updated_use_actions
+          all_buy_actions.push(...new_buy_actions)
+          actions2.push(...all_sell_actions)
           car_left = new_car_left
+          console.log(year-1, "Sell", all_sell_actions)
         }
         cars_step2 = car_left
 
         const [new_total_emission, good_use_actions] = adjust_use_actions(all_use_actions, total_emission, target_emission)
         actions2.push(...all_buy_actions)
         actions2.push(...good_use_actions)
+        console.log(year, "buy", all_buy_actions)
+        console.log(year, "use", all_use_actions)
         console.log(year, total_emission, new_total_emission, target_emission, new_total_emission <= target_emission)
 
       }
+
+      return actions2
     }
-    search2();
+    const df = await search2();
+    const submit = await summarize_submission(df);
+    console.log("result", submit)
+    dispatch(setValue({type: "storeVar", target: "result",
+                        payload: submit}))
   }
 
   return (

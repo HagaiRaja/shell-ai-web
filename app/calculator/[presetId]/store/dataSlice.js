@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const dataSlice = createSlice({
   name: 'data',
   initialState: {
+    presetId: "ID",
     carbonEmissions: [],
     costProfiles: [],
     demand: [],
@@ -14,6 +15,7 @@ export const dataSlice = createSlice({
     endYear: 0,
     startEmission: 0,
     emissionReductionTarget: 0,
+    result: [],
   },
   reducers: {
     increment: (state) => {
