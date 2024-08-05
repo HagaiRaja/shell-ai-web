@@ -46,7 +46,7 @@ export function Demand() {
             <Accordion.Body>
             {years.map(data => (
 
-              <Accordion className='mb-2' key={"demand-head" + data.year}>
+              <Accordion className='mb-2' key={"demand-head" + data.year} style={{ width: '100%' }}>
                 <Accordion.Item eventKey="demand">
                   <Accordion.Header>{data.year}</Accordion.Header>
                   <Accordion.Body>

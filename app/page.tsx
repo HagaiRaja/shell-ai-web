@@ -38,11 +38,9 @@ export default function Home() {
         body: param
       })
       const data = await res.json()
-      console.log("woi", data, res)
 
       // handle the error
       if (!res.ok) throw new Error(await res.text())
-      console.log("woi", data, res)
       setLoading(false);
       Swal.fire({
         title: "Upload Preset Success!",

@@ -46,7 +46,6 @@ export function YearSelector() {
   if (vehicles === null) return notFound();
 
   const adjustEndYear = (e) => {
-    // console.log(e.target.value)
     const newStartYear = parseInt(e.target.value);
     dispatch(setValue({type: "storeVar", target: "startYear", payload: newStartYear}));
     if (newStartYear >= selectedEndYear) {
@@ -59,7 +58,6 @@ export function YearSelector() {
     dispatch(setValue({type: "storeVar", target: "endYear", payload: newYear}));
   };
 
-  console.log(startYear, endYear, selectedStartYear, selectedEndYear)
   return <>
     <Row className='mb-4'>
       <h4>Year Range</h4>

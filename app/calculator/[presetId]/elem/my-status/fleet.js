@@ -46,7 +46,6 @@ export function Fleet() {
   }, [selectedStartYear, vehicles, curCarID, minYear, isLoaded]);
 
   const adjustAvailCarIds = (e) => {
-    console.log(e.target.value)
     const newYear = parseInt(e.target.value);
     setCurCarYear(newYear);
     setAvailCarIds(vehicles.filter((a) => a[3] == newYear));
@@ -67,7 +66,6 @@ export function Fleet() {
   };
 
   const removeFleet = (fleetId) => {
-    console.log("hapus", fleetId)
     dispatch(setValue({type: "removeFleet", payload: fleetId}))
   };
 

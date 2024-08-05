@@ -43,7 +43,6 @@ export const dataSlice = createSlice({
            }
         }
         case 'updateDemand': {
-          console.log(action)
           const rowIndex = state.demand.findIndex(item => item[4] === action.payload.target);
           const newRow = [...state.demand[rowIndex]];
           newRow[3] = action.payload.payload;

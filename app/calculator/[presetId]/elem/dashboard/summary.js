@@ -3,10 +3,13 @@ import dynamic from 'next/dynamic';
 import { Button, Container, Row, Col, Form, Accordion } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect, useRef } from 'react'
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export function Summary() {
-  const allData = useSelector((state) => state.data.value);
+  const allData = useSelector((state) => state.data);
+  if (allData?.result.length === 0) return <></>
+
   const unstackOptions = {
     chart: {
       type: 'bar'
@@ -21,7 +24,7 @@ export function Summary() {
       enabled: false
     },
     xaxis: {
-      categories: Array.from({length: 2039 - 2025}, (_, i) => i + 2025)
+      categories: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear)
     },
     yaxis: {
       title: {
@@ -33,95 +36,6 @@ export function Summary() {
       align: 'center'
     }
   };
-
-  const unstackSeries = [
-    {
-      name: 'Buy Cost (-)',
-      data: [165671,
-        137775,
-        197292,
-        142280,
-        127914,
-        186936,
-        180269,
-        119903,
-        127914,
-        109364,
-        188764,
-        130017,
-        138693,
-        118899]
-    },
-    {
-      name: 'Fuel Cost (-)',
-      data: [113384,
-        149437,
-        120769,
-        148316,
-        112112,
-        112279,
-        163434,
-        121237,
-        102474,
-        112112,
-        194057,
-        176087,
-        132845,
-        159192]
-    },
-    {
-      name: 'Sell Income (+)',
-      data: [123700,
-        115032,
-        110975,
-        103194,
-        125186,
-        112178,
-        110975,
-        100276,
-        128727,
-        108216,
-        100278,
-        116998,
-        124743,
-        125988]
-    },
-    {
-      name: 'Insurance Cost (-)',
-      data: [15183,
-        16588,
-        11748,
-        17011,
-        17895,
-        15839,
-        11343,
-        13213,
-        10614,
-        19683,
-        11837,
-        11635,
-        10614,
-        18038]
-    },
-    {
-      name: 'Maintenance Cost (-)',
-      data: [18964,
-        14943,
-        12573,
-        18029,
-        17520,
-        18559,
-        15682,
-        17071,
-        17179,
-        12375,
-        18546,
-        12200,
-        12564,
-        18546,]
-    }
-  ];
-
   const totalOptions = {
     chart: {
       type: 'bar'
@@ -136,7 +50,7 @@ export function Summary() {
       enabled: false
     },
     xaxis: {
-      categories: Array.from({length: 2039 - 2025}, (_, i) => i + 2025)
+      categories: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear)
     },
     yaxis: {
       title: {
@@ -149,14 +63,91 @@ export function Summary() {
     }
   };
 
-  const totalSeries = [
+  let buyCost = [], fuelCost = [], sellIncome = []
+  let insuranceCost = [], maintenanceCost = []
+
+  for (let year = allData.startYear; year <= allData.endYear; year++) {
+    let curBuyCost = 0, curFuelCost = 0, curSellIncome = 0
+    let curInsuranceCost = 0, curMaintenanceCost = 0
+    let car_left = {}
+    const buy = allData.result.filter((act) => ((act[0] === year) && (act[3] === "Buy")))
+    buy.map((a) => {
+      const [y, id, num, act, f, dist, y_r] = a
+      const car = allData.vehicles.filter((v) => (v[0] === id))
+      const price = car[0][4]
+      curBuyCost += (price * num)
+      if (!(id in car_left)) car_left[id] = 0
+      car_left[id] += num
+    })
+
+    const use = allData.result.filter((act) => ((act[0] === year) && (act[3] === "Use")))
+    use.map((a) => {
+      const [y, id, num, act, f, dist, y_r] = a
+      const vf = allData.vehiclesFuels.filter((v) => (v[0] === id))
+      const fuel = allData.fuels.filter((v) => ((v[0] === f) && (v[1] === year)))
+      const pricePerFuel = fuel[0][2], fuelPerKm = vf[0][2]
+      curFuelCost += parseInt(num * y_r * fuelPerKm * pricePerFuel)
+    })
+
+    for (const [id, num] of Object.entries(car_left)) {
+      const car = allData.vehicles.filter((v) => (v[0] === id))
+      const profile = allData.costProfiles.filter((v) => (v[0] === (year-car[0][3]+1)))
+      const price = car[0][4], insurance = profile[0][2], maintenance = profile[0][3]
+      curInsuranceCost += parseInt(num * price * insurance/100)
+      curMaintenanceCost += parseInt(num * price * maintenance/100)
+    }
+
+    const sell = allData.result.filter((act) => ((act[0] === year) && (act[3] === "Sell")))
+    sell.map((a) => {
+      const [y, id, num, act, f, dist, y_r] = a
+      const car = allData.vehicles.filter((v) => (v[0] === id))
+      const profile = allData.costProfiles.filter((v) => (v[0] === (year-car[0][3]+1)))
+      const price = car[0][4], resaleValue = profile[0][1]
+      curSellIncome += parseInt(num * price * resaleValue/100)
+      car_left[id] -= num
+    })
+
+    buyCost.push(curBuyCost)
+    fuelCost.push(curFuelCost)
+    sellIncome.push(curSellIncome)
+    insuranceCost.push(curInsuranceCost)
+    maintenanceCost.push(curMaintenanceCost)
+  }
+
+
+  const unstackSeries = [
     {
-      name: 'Cost',
-      data: [30, 40, 45, 50, 49]
+      name: 'Buy Cost (-)',
+      data: buyCost
+    },
+    {
+      name: 'Fuel Cost (-)',
+      data: fuelCost
+    },
+    {
+      name: 'Sell Income (+)',
+      data: sellIncome
+    },
+    {
+      name: 'Insurance Cost (-)',
+      data: insuranceCost
+    },
+    {
+      name: 'Maintenance Cost (-)',
+      data: maintenanceCost
     }
   ];
 
-  let totalCost = Array.from({length: 2039 - 2025}, (_, i) => 0);
+
+  const totalSeries = [
+    {
+      name: 'Cost',
+      data: []
+    }
+  ];
+
+  let totalCost = Array.from({length: allData.endYear - allData.startYear+1},
+                  (_, i) => i + allData.startYear);
   unstackSeries.map((series) => {
     series.data.forEach((value, i) => {
       if (series.name.includes('+')){
@@ -167,7 +158,6 @@ export function Summary() {
       }
     })
   })
-  console.log(totalCost)
 
   totalSeries[0].data = totalCost
 

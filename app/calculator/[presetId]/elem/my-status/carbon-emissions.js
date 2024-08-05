@@ -34,7 +34,6 @@ export function CarbonEmissions() {
       }
       let avgReduction = sumPercentage / (endYear-startYear)
       avgReduction = parseFloat(avgReduction.toFixed(2))
-      console.log(startYear, endYear, avgReduction)
       dispatch(setValue({type: "storeVar", target: "emissionReductionTarget", payload: avgReduction}));
       setEmissionReductionTarget(avgReduction)
     }

@@ -17,16 +17,15 @@ export function DemandTable({ rows }) {
   const updateData = (after, before) => {
     for (let i = 1; i <= 4; i++) {
       if (after[`S${i}`] != before[`S${i}`]){
-        console.log(after.id, `S${i}`, before[`S${i}`], "->", after[`S${i}`])
+        console.log("demand update", after.id, `S${i}`, before[`S${i}`], "->", after[`S${i}`])
         const ids = after.id.split('-')
         try {
           dispatch(setValue({type: "updateDemand", target: ids[i],
             payload: after[`S${i}`]}))
         }
         catch(e) {
-          console.log(e)
+          console.log("demand update error", e)
         }
-        console.log("done");
       }
     }
     return after

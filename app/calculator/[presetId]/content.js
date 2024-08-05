@@ -69,9 +69,9 @@ export function Content({ presetId }) {
           }
         }
       );
-      setTimeout(() => {
+      // setTimeout(() => {
         setLoading(false)
-      }, 2000);
+      // }, 2000);
     }
   }, [isLoaded, dispatch, presetId]);
 
@@ -84,7 +84,7 @@ export function Content({ presetId }) {
   }
 
   const calculate = async () => {
-    await setLoading(true)
+    // await setLoading(true)
     const fuelCache = {};
     // year.fuel: cost, emissions, uncertainty
     await allData.fuels.map((f) => {
@@ -174,6 +174,23 @@ export function Content({ presetId }) {
       })
       data.sort()
       return data
+    }
+
+    const sort_by_price = (year, cars) => {
+      let data = [], total_car = 0
+      for (const [s, car_list] of Object.entries(cars)) {
+        car_list.map((e) => {
+          const [car, num] = e
+          const profile = allData.costProfiles.filter((v) => (v[0] === (year-car.year+1)))
+          const resaleValue = profile[0][1]
+          total_car += num
+          data.push([
+            car.cost*resaleValue, car.id, num
+          ])
+        })
+      }
+      data.sort().reverse()
+      return [data, total_car]
     }
 
     const get_4inefficient_car = (cars) => {
@@ -272,10 +289,10 @@ export function Content({ presetId }) {
         let end_period_cost = 0
         if ((year - spec.year) > 9){ // TODO: change 9 to the rule
           if ((10 - (year - spec.year)) < 1){
-            end_period_cost = spec.consumption
+            end_period_cost = spec.cost
           }
           else {
-            end_period_cost = spec.consumption / (10 - (year - spec.year)) // and 10 here
+            end_period_cost = spec.cost / (10 - (year - spec.year)) // and 10 here
           }
         }
 
@@ -403,7 +420,7 @@ export function Content({ presetId }) {
             let num_car_change = Math.ceil(km_need_to_change/dist)
             let num_car_stay = num - num_car_change
             final_actions.push([year, car_id, num_car_change, "Use", f2, d, dist])
-            if (num_car_stay > 0) final_actions.push((year, car_id, num_car_stay, "Use", f1, d, dist))
+            if (num_car_stay > 0) final_actions.push([year, car_id, num_car_stay, "Use", f1, d, dist])
             total_emission -= erpkm*dist*num_car_change
           }
           else {
@@ -565,21 +582,39 @@ export function Content({ presetId }) {
         actions2.push(...all_buy_actions)
         actions2.push(...good_use_actions)
         console.log(year, "buy", all_buy_actions)
-        console.log(year, "use", all_use_actions)
-        console.log(year, total_emission, new_total_emission, target_emission, new_total_emission <= target_emission)
+        console.log(year, "use", good_use_actions)
+        console.log(year, "emission", total_emission, new_total_emission, target_emission, new_total_emission <= target_emission)
 
       }
+
+      // final sell: remove all the most expensive car
+      let all_sell_actions = []
+      const [sellOrder, total_car] = sort_by_price(allData.endYear, cars_step2)
+      let target_sell = Math.floor(total_car*20/100) // change later with rule
+      let idx = 0
+      while (target_sell && (idx < sellOrder.length)) {
+        if (sellOrder[idx][2] >= target_sell) {
+          target_sell = 0
+          all_sell_actions.push([allData.endYear, sellOrder[idx][1], target_sell, "Sell", "", "", 0])
+        }
+        else {
+          target_sell -= sellOrder[idx][2]
+          all_sell_actions.push([allData.endYear, sellOrder[idx][1], sellOrder[idx][2], "Sell", "", "", 0])
+        }
+        idx += 1
+      }
+      actions2.push(...all_sell_actions)
 
       return actions2
     }
     const df = await search2();
-    const submit = await summarize_submission(df);
+    const submit = summarize_submission(df);
     console.log("result", submit)
     dispatch(setValue({type: "storeVar", target: "result",
                         payload: submit}))
-    setTimeout(() => {
+    // setTimeout(() => {
       setLoading(false)
-    }, 1000);
+    // }, 1000);
   }
 
   const clickReset = () => {
@@ -628,7 +663,7 @@ export function Content({ presetId }) {
             <Form.Check // prettier-ignore
                 type='checkbox'
                 id='optimize-end'
-                label={`Optimize sell all asset at end of the year`}
+                label={`Optimize sell expensive asset at end of the year`}
                 className='mb-2'
             />
 
