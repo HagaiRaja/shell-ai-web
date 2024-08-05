@@ -18,6 +18,7 @@ export function Content({ presetId }) {
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
+    console.log("ENV", URL)
     if (!isLoaded){
       setIsLoaded(true)
       fetch(URL + "/api/preset/" + presetId)
