@@ -19,6 +19,8 @@ export function Content({ presetId }) {
   const dispatch = useDispatch();
   const allData = useSelector((state) => state.data);
   const [baseData, setBaseData] = useState({})
+  const [maxSellFleet, setMaxSellFleet] = useState(20)
+  const [maxAgeFleet, setMaxAgeFleet] = useState(10)
   const [loading, setLoading] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false)
   const fileInputRef = useRef(null);
@@ -69,9 +71,9 @@ export function Content({ presetId }) {
           }
         }
       );
-      // setTimeout(() => {
+      setTimeout(() => {
         setLoading(false)
-      // }, 2000);
+      }, 2000);
     }
   }, [isLoaded, dispatch, presetId]);
 
@@ -285,26 +287,27 @@ export function Content({ presetId }) {
         const cur_car = await get_best_cars(year, spec.size, false, dist, spec.dist)
         const [car_id2, dep2, usa2] = compute_usage_cost(cur_car, year)
 
-        // after 10 years, the cars are unusable so it's better to sell 5 years before the end period
+        // after 10 (allData.maxAgeFleet) years,
+        // the cars are unusable so it's better to sell 5 years before the end period
         let end_period_cost = 0
-        if ((year - spec.year) > 9){ // TODO: change 9 to the rule
+        if ((year - spec.year) > (allData.maxAgeFleet-1)){
           if ((10 - (year - spec.year)) < 1){
             end_period_cost = spec.cost
           }
           else {
-            end_period_cost = spec.cost / (10 - (year - spec.year)) // and 10 here
+            end_period_cost = spec.cost / (allData.maxAgeFleet - (year - spec.year))
           }
         }
 
-        comparison.push([(dep1+usa1) - (dep2+usa2) + end_period_cost, num, car_id1, car_id2, action])
         if (spec.year !== year){
+          comparison.push([(dep1+usa1) - (dep2+usa2) + end_period_cost, num, car_id1, car_id2, action])
           total_car += num
         }
       })
       comparison.sort((a, b) => a[0] - b[0]).reverse()
 
-      // TODO: change 20 to the rule 
-      let plan_to_sell = Math.floor(total_car*20/100)
+      // The rule to only allow sell 20% (allData.maxSellFleet) of the current fleet
+      let plan_to_sell = Math.floor(total_car*allData.maxSellFleet/100)
       let car_left = {}, target_sell = {}, updated_actions = [], new_buy_actions = []
       console.log("comparison", actions[0][0], comparison)
       comparison.map((el) => {
@@ -603,7 +606,7 @@ export function Content({ presetId }) {
       // final sell: remove all the most expensive car
       let all_sell_actions = []
       const [sellOrder, total_car] = sort_by_price(allData.endYear, cars_step2)
-      let target_sell = Math.floor(total_car*20/100) // change later with rule
+      let target_sell = Math.floor(total_car*allData.maxSellFleet/100) // change later with rule
       let idx = 0
       while (target_sell && (idx < sellOrder.length)) {
         if (sellOrder[idx][2] >= target_sell) {
@@ -625,9 +628,9 @@ export function Content({ presetId }) {
     console.log("result", submit)
     dispatch(setValue({type: "storeVar", target: "result",
                         payload: submit}))
-    // setTimeout(() => {
+    setTimeout(() => {
       setLoading(false)
-    // }, 1000);
+    }, 1000);
   }
 
   const clickReset = () => {
@@ -684,7 +687,15 @@ export function Content({ presetId }) {
               <InputGroup.Text id="basic-addon3">
                 Max sell fleet per year:
               </InputGroup.Text>
-              <Form.Control id="basic-url" type="number" defaultValue={20} min={1} max={100} aria-describedby="basic-addon3" />
+              <Form.Control id="basic-url" type="number" value={maxSellFleet}
+                min={1} max={100} aria-describedby="basic-addon3"
+                onChange={(e) => {
+                  setMaxSellFleet(e.target.value)
+                  dispatch(setValue({type: "storeVar", target: "maxSellFleet",
+                    payload: parseInt(e.target.value)
+                  }))
+                }}
+              />
               <InputGroup.Text>%</InputGroup.Text>
             </InputGroup>
 
@@ -693,7 +704,15 @@ export function Content({ presetId }) {
               <InputGroup.Text id="basic-addon3">
                 Max age fleet has to sell:
               </InputGroup.Text>
-              <Form.Control id="basic-url" type="number" defaultValue={10} min={1} max={100} aria-describedby="basic-addon3" />
+              <Form.Control id="basic-url" type="number" value={maxAgeFleet}
+                min={1} max={100} aria-describedby="basic-addon3"
+                onChange={(e) => {
+                  setMaxAgeFleet(e.target.value)
+                  dispatch(setValue({type: "storeVar", target: "maxAgeFleet",
+                    payload: parseInt(e.target.value)
+                  }))
+                }}
+              />
               <InputGroup.Text>year(s)</InputGroup.Text>
             </InputGroup>
 

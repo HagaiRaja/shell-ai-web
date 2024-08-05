@@ -96,7 +96,11 @@ export function Summary() {
           return y;
         }
       }
-    }
+    },
+    title: {
+      text: 'Emission Trend',
+      align: 'center'
+    },
   };
 
   let buyCost = [], fuelCost = [], sellIncome = []
@@ -139,6 +143,7 @@ export function Summary() {
       const [y, id, num, act, f, dist, y_r] = a
       const car = allData.vehicles.filter((v) => (v[0] === id))
       const profile = allData.costProfiles.filter((v) => (v[0] === (year-car[0][3]+1)))
+      console.log("debug", year, a, profile, car)
       const price = car[0][4], resaleValue = profile[0][1]
       curSellIncome += parseInt(num * price * resaleValue/100)
       car_left[id] -= num

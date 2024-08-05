@@ -62,7 +62,7 @@ export function CarbonEmissions() {
                 <InputGroup.Text id="basic-addon3">
                   Target reduction per year:
                 </InputGroup.Text>
-                <Form.Control id="basic-url" type="number" value={emissionReductionTarget} step={0.01} min={1} max={100} aria-describedby="basic-addon3" onChange={(e) => {
+                <Form.Control id="basic-url" type="number" value={emissionReductionTarget} step={0.1} min={1} max={99.9} aria-describedby="basic-addon3" onChange={(e) => {
                   const target = parseFloat(e.target.value)
                   setEmissionReductionTarget(target)
                   dispatch(setValue({type: "storeVar", target: "emissionReductionTarget",

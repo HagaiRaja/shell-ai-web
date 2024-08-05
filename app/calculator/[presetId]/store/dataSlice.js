@@ -16,6 +16,8 @@ export const dataSlice = createSlice({
     startEmission: 0,
     emissionReductionTarget: 0,
     result: [],
+    maxSellFleet: 20,
+    maxAgeFleet: 10,
   },
   reducers: {
     increment: (state) => {
