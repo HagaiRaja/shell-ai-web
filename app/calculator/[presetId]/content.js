@@ -2,7 +2,9 @@ import React from 'react';
 import { Button, Container, Row, Col, Form, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import UploadIcon from '@mui/icons-material/Upload';
 
 import { YearSelector } from "./elem/year-selector";
 import { MyStatus } from "./elem/my-status";
@@ -15,7 +17,9 @@ import { createRandomString, argMin } from '@/app/utils';
 export function Content({ presetId }) {
   const dispatch = useDispatch();
   const allData = useSelector((state) => state.data);
+  const [baseData, setBaseData] = useState({})
   const [isLoaded, setIsLoaded] = useState(false)
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     console.log("ENV", URL)
@@ -38,12 +42,25 @@ export function Content({ presetId }) {
                                 payload: addId(data.data.vehiclesFuels.rows)}))
             dispatch(setValue({type: "storeVar", target: "vehicles",
                                 payload: addId(data.data.vehicles.rows)}))
-
+            
+            let startY = 0, endY = 0
             if (data.data.vehicles.rows) {
               const availYear = data.data.vehicles.rows.map((e) => e[3]);
-              dispatch(setValue({type: "storeVar", target: "startYear", payload: Math.min(...availYear)}))
-              dispatch(setValue({type: "storeVar", target: "endYear", payload: Math.max(...availYear)}))
+              startY = Math.min(...availYear)
+              endY = Math.max(...availYear)
+              dispatch(setValue({type: "storeVar", target: "startYear", payload: startY}))
+              dispatch(setValue({type: "storeVar", target: "endYear", payload: endY}))
             }
+            setBaseData({
+              carbonEmissions: addId(data.data.carbonEmissions.rows),
+              costProfiles: addId(data.data.costProfiles.rows),
+              demand: addId(data.data.demand.rows),
+              fuels: addId(data.data.fuels.rows),
+              vehiclesFuels: addId(data.data.vehiclesFuels.rows),
+              vehicles: addId(data.data.vehicles.rows),
+              startYear: startY,
+              endYear: endY,
+            })
           }else{
             dispatch(setValue({type: "storeVar", target: "vehicles", payload: null}))
           }
@@ -534,7 +551,7 @@ export function Content({ presetId }) {
           all_buy_actions.push(...new_buy_actions)
           actions2.push(...all_sell_actions)
           car_left = new_car_left
-          console.log(year-1, "Sell", all_sell_actions)
+          console.log(year-1, "sell", all_sell_actions)
         }
         cars_step2 = car_left
 
@@ -555,6 +572,37 @@ export function Content({ presetId }) {
     dispatch(setValue({type: "storeVar", target: "result",
                         payload: submit}))
   }
+
+  const clickReset = () => {
+    for (const [key, val] of Object.entries(baseData)) {
+      dispatch(setValue({type: "storeVar", target: key, payload: val}))
+    }
+    dispatch(setValue({type: "storeVar", target: "result", payload: []}))
+  }
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        for (const [key, val] of Object.entries(json)) {
+          dispatch(setValue({type: "storeVar", target: key, payload: val}))
+        }
+      } catch (err) {
+        console.error("Error parsing JSON:", err);
+      }
+    };
+
+    if (file) {
+      reader.readAsText(file);
+    }
+  };
+
+  const importData = () => {
+    fileInputRef.current.click();
+  };
 
   return (
     <div>
@@ -593,17 +641,29 @@ export function Content({ presetId }) {
 
           </Form>
         </Row>
-        <Row>
-          <Col className='text-right my-2'>
-            <Button variant="danger">
-              Reset
-            </Button>
+        <Row xs="auto">
+          <Col>
+              <Button variant="danger" onClick={clickReset}>
+                <RestartAltIcon/> Reset
+              </Button>
+          </Col>
+          <Col>
+              <Button variant="success" onClick={importData}>
+                <UploadIcon/> Import
+              </Button>
+              <input
+                type="file"
+                accept=".json"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleFileUpload}
+              />
           </Col>
         </Row>
 
         <hr></hr>
         <Col className='text-center mb-4'>
-          <Button variant="primary" className='btn-add' type="submit" onClick={calculate}>
+          <Button variant="primary" className='btn-add' type="submit" size="lg" onClick={calculate}>
             Calculate
           </Button>
         </Col>

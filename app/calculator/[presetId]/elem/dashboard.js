@@ -10,10 +10,24 @@ export function Dashboard() {
   const allData = useSelector((state) => state.data);
 
   const exportJSON = () => {
+    // create file in browser
+    const json = JSON.stringify(allData, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const href = URL.createObjectURL(blob);
+  
+    // create "a" HTLM element with href to file
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = `ZeroAI_${allData.presetId}_out.json`;
+    document.body.appendChild(link);
+    link.click();
+  
+    // clean up "a" element & remove ObjectURL
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
   }
 
   const exportCSV = () => {
-    console.log("CSV", allData.result)
     const csvContent = "data:text/csv;charset=utf-8," +
       "Year,ID,Num_Vehicles,Type,Fuel,Distance_bucket,Distance_per_vehicle(km)\n" +
       allData.result.map(a =>
