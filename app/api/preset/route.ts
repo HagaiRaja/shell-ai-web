@@ -18,16 +18,20 @@ export async function POST(request: NextRequest) {
   const carbonEmissions: File | null = data.get('carbonEmissions') as unknown as File
 
   if (!vehicles || !vehiclesFuels || !fuels || !costProfiles) {
-    return NextResponse.json({ success: false })
+    return NextResponse.json({ success: false, message: "Please fill the required (*) field" })
   }
+
   
   // Managing Folder
+  let message = `No Message`
   if (presetId){
     let curDir = join(PRESET_DIR, presetId)
     try {
       await access(curDir)
       // return NextResponse.json({ success: false, message: "The ID has been used" })
+      message = `The "${presetId}" preset has been updated.`
     } catch (error) {
+      message = `The "${presetId}" preset has been uploaded.`
       mkdir(curDir)
     }
   }
@@ -42,6 +46,7 @@ export async function POST(request: NextRequest) {
         break
       }
     }
+    message = `The "${presetId}" preset has been uploaded.`
   }
 
   // Storing files
@@ -56,5 +61,5 @@ export async function POST(request: NextRequest) {
 
 
 
-  return NextResponse.json({ success: true, id: presetId })
+  return NextResponse.json({ success: true, message, id: presetId })
 }

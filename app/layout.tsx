@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Fleet Planner',
+  title: 'Shell Fleet Zero AI',
   description: 'A fleet planner for green transition designed for Shell need and beyond',
 }
 

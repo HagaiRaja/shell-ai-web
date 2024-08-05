@@ -48,6 +48,8 @@ export function Dashboard() {
     }
   }
 
+  if (allData.result.length === 0) return <></>
+
   return <>
     <Row>
       <h4>Result</h4>

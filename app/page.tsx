@@ -3,8 +3,13 @@
 import { useState } from 'react'
 import { Button, Form, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
+import Swal from 'sweetalert2'
+
+import { LoadingSpinner } from '@/app/loading-spinner';
+import { URL } from '@/app/constant'
 
 export default function Home() {
+  const [loading, setLoading] = useState(false);
   const [presetId, setPresetId] = useState<string>()
   const [demand, setDemand] = useState<File>()
   const [vehicles, setVehicles] = useState<File>()
@@ -14,28 +19,52 @@ export default function Home() {
   const [carbonEmissions, setCarbonEmissions] = useState<File>()
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setLoading(true);
     e.preventDefault()
     if (!vehicles || !vehiclesFuels || !fuels || !costProfiles) return
 
     try {
-      const data = new FormData()
-      if (presetId) {data.set('presetId', presetId)}
-      if (demand) {data.set('demand', demand)}
-      data.set('vehicles', vehicles)
-      data.set('vehiclesFuels', vehiclesFuels)
-      data.set('fuels', fuels)
-      data.set('costProfiles', costProfiles)
-      if (carbonEmissions) {data.set('carbonEmissions', carbonEmissions)}
+      const param = new FormData()
+      if (presetId) {param.set('presetId', presetId)}
+      if (demand) {param.set('demand', demand)}
+      param.set('vehicles', vehicles)
+      param.set('vehiclesFuels', vehiclesFuels)
+      param.set('fuels', fuels)
+      param.set('costProfiles', costProfiles)
+      if (carbonEmissions) {param.set('carbonEmissions', carbonEmissions)}
 
       const res = await fetch('/api/preset', {
         method: 'POST',
-        body: data
+        body: param
       })
+      const data = await res.json()
+      console.log("woi", data, res)
+
       // handle the error
       if (!res.ok) throw new Error(await res.text())
+      console.log("woi", data, res)
+      setLoading(false);
+      Swal.fire({
+        title: "Upload Preset Success!",
+        text: data.message,
+        showCancelButton: true,
+        confirmButtonText: "Go to Calculator!",
+        cancelButtonText: `Stay Here`
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          window.location.href = URL + "/calculator/" + presetId;
+        } 
+      });
     } catch (e: any) {
       // Handle errors here
       console.error(e)
+      Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong',
+        icon: 'error',
+        confirmButtonText: 'Cool'
+      })
     }
   }
 
@@ -136,6 +165,7 @@ export default function Home() {
           </Form>
         </Row>
       </Container>
+      {loading && <LoadingSpinner />}
     </main>
   )
 }

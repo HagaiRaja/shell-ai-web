@@ -12,18 +12,21 @@ import { MarketStatus } from "./elem/market-status";
 import { Dashboard } from "./elem/dashboard";
 import { setValue } from './store/dataSlice';
 import { URL } from '@/app/constant'
+import { LoadingSpinner } from '@/app/loading-spinner';
 import { createRandomString, argMin } from '@/app/utils';
 
 export function Content({ presetId }) {
   const dispatch = useDispatch();
   const allData = useSelector((state) => state.data);
   const [baseData, setBaseData] = useState({})
+  const [loading, setLoading] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false)
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     console.log("ENV", URL)
     if (!isLoaded){
+      setLoading(true)
       setIsLoaded(true)
       dispatch(setValue({type: "storeVar", target: "presetId", payload: presetId}))
       fetch(URL + "/api/preset/" + presetId)
@@ -61,13 +64,15 @@ export function Content({ presetId }) {
               startYear: startY,
               endYear: endY,
             })
-          }else{
+          } else{
             dispatch(setValue({type: "storeVar", target: "vehicles", payload: null}))
           }
         }
       );
+      setTimeout(() => {
+        setLoading(false)
+      }, 2000);
     }
-
   }, [isLoaded, dispatch, presetId]);
 
   const addId = (arr) => {
@@ -79,6 +84,7 @@ export function Content({ presetId }) {
   }
 
   const calculate = async () => {
+    await setLoading(true)
     const fuelCache = {};
     // year.fuel: cost, emissions, uncertainty
     await allData.fuels.map((f) => {
@@ -571,6 +577,9 @@ export function Content({ presetId }) {
     console.log("result", submit)
     dispatch(setValue({type: "storeVar", target: "result",
                         payload: submit}))
+    setTimeout(() => {
+      setLoading(false)
+    }, 1000);
   }
 
   const clickReset = () => {
@@ -606,8 +615,9 @@ export function Content({ presetId }) {
 
   return (
     <div>
+      {loading && <LoadingSpinner />}
       <Container className='p-2 mt-4 mb-2 w-50' style={{minWidth: '700px'}}>
-        <h1 className='text-center'>Fleet Planner</h1>
+        <h1 className='text-center'>Shell Fleet Zero AI</h1>
         <YearSelector />
         <MyStatus />
         {/* <MarketStatus /> */}
