@@ -407,9 +407,21 @@ export function Content({ presetId }) {
             f1 = 'LNG'
             f2 = 'BioLNG'
           }
+          else if (fuel == "BioLNG"){
+            f1 = 'LNG'
+            f2 = 'LNG'
+          }
           else if (fuel == "B20"){
             f1 = 'B20'
             f2 = 'HVO'
+          }
+          else if (fuel == "HVO"){
+            f1 = 'HVO'
+            f2 = 'HVO'
+          }
+          else if (fuel == "Electricity"){
+            f1 = 'Electricity'
+            f2 = 'Electricity'
           }
           else {
             console.log("weird", temp_action)
@@ -582,6 +594,7 @@ export function Content({ presetId }) {
         actions2.push(...all_buy_actions)
         actions2.push(...good_use_actions)
         console.log(year, "buy", all_buy_actions)
+        console.log(year, "use before", all_use_actions)
         console.log(year, "use", good_use_actions)
         console.log(year, "emission", total_emission, new_total_emission, target_emission, new_total_emission <= target_emission)
 

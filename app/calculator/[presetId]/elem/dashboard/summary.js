@@ -28,7 +28,7 @@ export function Summary() {
     },
     yaxis: {
       title: {
-        text: 'Cost'
+        text: 'Cost ($)'
       }
     },
     title: {
@@ -54,7 +54,7 @@ export function Summary() {
     },
     yaxis: {
       title: {
-        text: 'Cost'
+        text: 'Cost ($)'
       }
     },
     title: {
@@ -62,13 +62,49 @@ export function Summary() {
       align: 'center'
     }
   };
+  const emissionOptions = {
+    chart: {
+      height: 350,
+      type: 'line',
+    },
+    stroke: {
+      curve: 'smooth'
+    },
+    fill: {
+      type:'solid',
+      opacity: [0.35, 1],
+    },
+    labels: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear),
+    markers: {
+      size: 0
+    },
+    yaxis: [
+      {
+        title: {
+          text: 'Emission (CO2/kg)',
+        },
+      }
+    ],
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: function (y) {
+          if(typeof y !== "undefined") {
+            return  y.toFixed(0) + " CO2/kg";
+          }
+          return y;
+        }
+      }
+    }
+  };
 
   let buyCost = [], fuelCost = [], sellIncome = []
-  let insuranceCost = [], maintenanceCost = []
+  let insuranceCost = [], maintenanceCost = [], emission = []
 
   for (let year = allData.startYear; year <= allData.endYear; year++) {
     let curBuyCost = 0, curFuelCost = 0, curSellIncome = 0
-    let curInsuranceCost = 0, curMaintenanceCost = 0
+    let curInsuranceCost = 0, curMaintenanceCost = 0, curEmission = 0
     let car_left = {}
     const buy = allData.result.filter((act) => ((act[0] === year) && (act[3] === "Buy")))
     buy.map((a) => {
@@ -85,8 +121,9 @@ export function Summary() {
       const [y, id, num, act, f, dist, y_r] = a
       const vf = allData.vehiclesFuels.filter((v) => (v[0] === id))
       const fuel = allData.fuels.filter((v) => ((v[0] === f) && (v[1] === year)))
-      const pricePerFuel = fuel[0][2], fuelPerKm = vf[0][2]
+      const pricePerFuel = fuel[0][3], emissionPerFuel = fuel[0][2], fuelPerKm = vf[0][2]
       curFuelCost += parseInt(num * y_r * fuelPerKm * pricePerFuel)
+      curEmission += parseInt(num * y_r * fuelPerKm * emissionPerFuel)
     })
 
     for (const [id, num] of Object.entries(car_left)) {
@@ -112,6 +149,7 @@ export function Summary() {
     sellIncome.push(curSellIncome)
     insuranceCost.push(curInsuranceCost)
     maintenanceCost.push(curMaintenanceCost)
+    emission.push(curEmission)
   }
 
 
@@ -138,14 +176,6 @@ export function Summary() {
     }
   ];
 
-
-  const totalSeries = [
-    {
-      name: 'Cost',
-      data: []
-    }
-  ];
-
   let totalCost = Array.from({length: allData.endYear - allData.startYear+1},
                   (_, i) => i + allData.startYear);
   unstackSeries.map((series) => {
@@ -159,13 +189,33 @@ export function Summary() {
     })
   })
 
-  totalSeries[0].data = totalCost
+  let target_emission = Array.from({length: allData.endYear - allData.startYear+1},
+    (_, i) => parseInt(((((100-allData.emissionReductionTarget)/100)**i)*allData.startEmission)));
+  
+  const totalSeries = [
+    {
+      name: 'Cost',
+      data: totalCost
+    }
+  ];
+
+  const emissionSeries = [{
+    name: 'Target Emission',
+    type: 'area',
+    data: target_emission
+  }, {
+    name: 'Emission',
+    type: 'line',
+    data: emission
+  }
+  ]
 
   return <>
     <Accordion defaultActiveKey="summary" className='mb-2'>
       <Accordion.Item eventKey="summary">
         <Accordion.Header>Summary</Accordion.Header>
         <Accordion.Body>
+          <Chart options={emissionOptions} series={emissionSeries} type="line" height={350} />
           <Chart options={totalOptions} series={totalSeries} type="bar" height={350} />
           <Chart options={unstackOptions} series={unstackSeries} type="bar" height={350} />
         </Accordion.Body>
