@@ -189,11 +189,11 @@ export function Content({ presetId }) {
           const resaleValue = profile[0][1]
           total_car += num
           data.push([
-            car.cost*resaleValue, car.id, num
+            car.cost*resaleValue/100, car.id, num
           ])
         })
       }
-      data.sort().reverse()
+      data.sort((a, b) => a[0] - b[0]).reverse()
       return [data, total_car]
     }
 

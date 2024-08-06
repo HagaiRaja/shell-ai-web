@@ -37,7 +37,6 @@ export function DemandTable({ rows }) {
         columns={columns}
         hideFooter={true}
         autoHeight
-        processRowUpdate={updateData}
       />
     </div>
   );

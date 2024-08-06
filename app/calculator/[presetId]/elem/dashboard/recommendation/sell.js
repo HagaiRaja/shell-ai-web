@@ -24,7 +24,6 @@ export function SellRecommendation({year}) {
   sell.map((a) => {
     const [y, id, num, act, f, dist, y_r] = a
     const car = vehicles.filter((v) => (v[0] === id))
-    // console.log("debug", (year-car[0][3]+1), maxYear)
     const targetProfileYear = (year-car[0][3]+1), maxYear = costProfiles[costProfiles.length-1]
     const profileYearIdx = (targetProfileYear > maxYear[0]) ? maxYear[0] : targetProfileYear
     const profile = costProfiles.filter((v) => (v[0] === profileYearIdx))
@@ -46,7 +45,12 @@ export function SellRecommendation({year}) {
               <DataGrid
                 rows={series}
                 columns={columns}
-                hideFooter={true}
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: 5, page: 0 },
+                  },
+                }}
+                pageSizeOptions={[5, 10, 25]}
                 autoHeight
               />
             </div>
