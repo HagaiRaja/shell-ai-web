@@ -86,7 +86,7 @@ export function Content({ presetId }) {
   }
 
   const calculate = async () => {
-    // await setLoading(true)
+    // await setLoading(true) # TODO: Remove this
     const fuelCache = {};
     // year.fuel: cost, emissions, uncertainty
     await allData.fuels.map((f) => {
@@ -183,7 +183,9 @@ export function Content({ presetId }) {
       for (const [s, car_list] of Object.entries(cars)) {
         car_list.map((e) => {
           const [car, num] = e
-          const profile = allData.costProfiles.filter((v) => (v[0] === (year-car.year+1)))
+          const targetProfileYear = (year-car.year+1), maxYear = allData.costProfiles[allData.costProfiles.length-1]
+          const profileYearIdx = (targetProfileYear > maxYear[0]) ? maxYear[0] : targetProfileYear
+          const profile = allData.costProfiles.filter((v) => (v[0] === profileYearIdx))
           const resaleValue = profile[0][1]
           total_car += num
           data.push([
@@ -671,7 +673,7 @@ export function Content({ presetId }) {
         <h1 className='text-center'>Shell Fleet Zero AI</h1>
         <YearSelector />
         <MyStatus />
-        {/* <MarketStatus /> */}
+        <MarketStatus />
 
         <Row className='mt-3'>
           <h6>Rules:</h6>

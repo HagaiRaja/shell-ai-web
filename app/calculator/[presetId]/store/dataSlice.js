@@ -58,6 +58,18 @@ export const dataSlice = createSlice({
             ]
            }
         }
+        case 'updateCostProfile': {
+          const rowIndex = state.costProfiles.findIndex(item => item[4] === action.payload.target);
+
+          return {
+            ...state,
+            costProfiles: [
+              ...state.costProfiles.slice(0, rowIndex),
+              action.payload.payload,
+              ...state.costProfiles.slice(rowIndex + 1)
+            ]
+           }
+        }
       }
     },
   },

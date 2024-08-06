@@ -41,7 +41,9 @@ export function Summary() {
 
     for (const [id, num] of Object.entries(car_left)) {
       const car = allData.vehicles.filter((v) => (v[0] === id))
-      const profile = allData.costProfiles.filter((v) => (v[0] === (year-car[0][3]+1)))
+      const targetProfileYear = (year-car[0][3]+1), maxYear = allData.costProfiles[allData.costProfiles.length-1]
+      const profileYearIdx = (targetProfileYear > maxYear[0]) ? maxYear[0] : targetProfileYear
+      const profile = allData.costProfiles.filter((v) => (v[0] === profileYearIdx))
       const price = car[0][4], insurance = profile[0][2], maintenance = profile[0][3]
       curInsuranceCost += parseInt(num * price * insurance/100)
       curMaintenanceCost += parseInt(num * price * maintenance/100)
@@ -51,7 +53,12 @@ export function Summary() {
     sell.map((a) => {
       const [y, id, num, act, f, dist, y_r] = a
       const car = allData.vehicles.filter((v) => (v[0] === id))
-      const profile = allData.costProfiles.filter((v) => (v[0] === (year-car[0][3]+1)))
+      const targetProfileYear = (year-car[0][3]+1), maxYear = allData.costProfiles[allData.costProfiles.length-1]
+      const profileYearIdx = (targetProfileYear > maxYear[0]) ? maxYear[0] : targetProfileYear
+      if (targetProfileYear > allData.maxAgeFleet) {
+        console.log("Sell Violation", a)
+      }
+      const profile = allData.costProfiles.filter((v) => (v[0] === profileYearIdx))
       const price = car[0][4], resaleValue = profile[0][1]
       curSellIncome += parseInt(num * price * resaleValue/100)
       car_left[id] -= num

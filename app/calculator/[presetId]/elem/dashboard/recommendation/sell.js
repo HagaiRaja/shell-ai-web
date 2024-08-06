@@ -24,7 +24,10 @@ export function SellRecommendation({year}) {
   sell.map((a) => {
     const [y, id, num, act, f, dist, y_r] = a
     const car = vehicles.filter((v) => (v[0] === id))
-    const profile = costProfiles.filter((v) => (v[0] === (year-car[0][3]+1)))
+    // console.log("debug", (year-car[0][3]+1), maxYear)
+    const targetProfileYear = (year-car[0][3]+1), maxYear = costProfiles[costProfiles.length-1]
+    const profileYearIdx = (targetProfileYear > maxYear[0]) ? maxYear[0] : targetProfileYear
+    const profile = costProfiles.filter((v) => (v[0] === profileYearIdx))
     const price = car[0][4], resaleValue = profile[0][1]
     const sell = parseInt(price * resaleValue/100)
     const totalSell = num * sell
