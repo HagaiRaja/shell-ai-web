@@ -14,9 +14,9 @@ export function YearRecommendation({year}) {
         <Accordion.Header>{year}</Accordion.Header>
         <Accordion.Body>
             
-          <BuyRecommendation />
-          <UseRecommendation />
-          <SellRecommendation />
+          <BuyRecommendation year={year}/>
+          <UseRecommendation year={year}/>
+          <SellRecommendation year={year} />
 
         </Accordion.Body>
       </Accordion.Item>

@@ -6,15 +6,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useRef } from 'react'
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
+import { numberWithCommas } from '@/app/utils'
+
 export function Summary() {
   const allData = useSelector((state) => state.data);
   if (allData?.result.length === 0) return <></>
 
   let buyCost = [], fuelCost = [], sellIncome = []
   let insuranceCost = [], maintenanceCost = [], emission = []
-  const numberWithCommas = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
 
   for (let year = allData.startYear; year <= allData.endYear; year++) {
     let curBuyCost = 0, curFuelCost = 0, curSellIncome = 0
@@ -53,7 +52,6 @@ export function Summary() {
       const [y, id, num, act, f, dist, y_r] = a
       const car = allData.vehicles.filter((v) => (v[0] === id))
       const profile = allData.costProfiles.filter((v) => (v[0] === (year-car[0][3]+1)))
-      console.log("debug", year, a, profile, car)
       const price = car[0][4], resaleValue = profile[0][1]
       curSellIncome += parseInt(num * price * resaleValue/100)
       car_left[id] -= num

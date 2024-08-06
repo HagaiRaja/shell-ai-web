@@ -6,7 +6,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { YearRecommendation } from './year'
 
 export function Recommendation() {
-  const allData = useSelector((state) => state.data.value);
+  const startYear = useSelector((state) => state.data.startYear);
+  const endYear = useSelector((state) => state.data.endYear);
+
+  let years = []
+  for (let year = startYear; year <= endYear; year++) {
+    years.push(year)
+  }
 
   return <>
     <Accordion defaultActiveKey="recommendation">
@@ -14,11 +20,9 @@ export function Recommendation() {
         <Accordion.Header>Recommendation</Accordion.Header>
         <Accordion.Body>
 
-          <YearRecommendation year={2025} />
-          <YearRecommendation year={2026} />
-          <YearRecommendation year={2027} />
-          <YearRecommendation year={2028} />
-          <YearRecommendation year={2029} />
+        {years.map(year => (
+          <YearRecommendation year={year} key={`recommendation-${year}`}/>
+        ))}
 
         </Accordion.Body>
       </Accordion.Item>

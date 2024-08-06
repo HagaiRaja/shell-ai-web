@@ -1,21 +1,39 @@
 import { Button, Container, Row, Col, Form, Accordion } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import { DataGrid } from '@mui/x-data-grid';
+import { useSelector } from 'react-redux';
 
-export function UseRecommendation({data}) {
+import { numberWithCommas } from '@/app/utils'
+
+export function UseRecommendation({year}) {
+  const result = useSelector((state) => state.data.result);
+  const vehiclesFuels = useSelector((state) => state.data.vehiclesFuels);
+  const fuels = useSelector((state) => state.data.fuels);
+  if (result.length === 0) return <></>;
+  
   const columns = [
     { field: 'id', headerName: 'ID', align:'right', headerAlign: 'right', flex:2 },
-    { field: 'qty', headerName: 'Quantity', align:'right', headerAlign: 'right', flex:1, type:"number" },
+    { field: 'num', headerName: 'Quantity', align:'right', headerAlign: 'right', flex:1, type:"number" },
     { field: 'fuel', headerName: 'Fuel', align:'right', headerAlign: 'right', flex:1 },
     { field: 'dist', headerName: 'Distance Bucket', align:'right', headerAlign: 'right', flex:2},
     { field: 'distPer', headerName: 'Distance per Vehicle (km)', align:'right', headerAlign: 'right', flex:2, type:"number" },
+    { field: 'cost', headerName: 'Fuel Cost', align:'right', headerAlign: 'right', flex:2, type:"number" },
+    { field: 'emission', headerName: 'Emission', align:'right', headerAlign: 'right', flex:2, type:"number" },
   ];
-  const rows = [
-    {id: "LNG_S1_2025", qty: 2, fuel: "LNG", dist: "D1", distPer: 106000 },
-    {id: "LNG_S2_2025", qty: 1, fuel: "LNG", dist: "D2", distPer: 106000 },
-    {id: "LNG_S3_2025", qty: 27, fuel: "LNG", dist: "D3", distPer: 106000 },
-    {id: "LNG_S4_2025", qty: 1, fuel: "LNG", dist: "D4", distPer: 106000 },
-  ];
+
+  const use = result.filter((act) => ((act[0] === year) && (act[3] === "Use")))
+  let series = [], totalCost = 0, totalEmission = 0
+  use.map((a) => {
+    const [y, id, num, act, fuel, dist, distPer] = a
+    const vf = vehiclesFuels.filter((v) => (v[0] === id))
+    const fuelData = fuels.filter((v) => ((v[0] === fuel) && (v[1] === year)))
+    const pricePerFuel = fuelData[0][3], emissionPerFuel = fuelData[0][2], fuelPerKm = vf[0][2]
+    const cost = parseInt(num * distPer * fuelPerKm * pricePerFuel)
+    const emission = parseInt(num * distPer * fuelPerKm * emissionPerFuel)
+    totalCost += cost
+    totalEmission += emission
+    series.push({id, num, fuel, dist, distPer, cost, emission})
+  })
 
   return <>
     <Accordion defaultActiveKey="recom-head-2025" className='mb-2'>
@@ -26,7 +44,7 @@ export function UseRecommendation({data}) {
           <Row>
             <div style={{ width: '100%' }}>
               <DataGrid
-                rows={rows}
+                rows={series}
                 columns={columns}
                 hideFooter={true}
                 autoHeight
@@ -35,8 +53,8 @@ export function UseRecommendation({data}) {
           </Row>
           <Row>
             <Col className='mt-2'>
-              <p style={{textAlign: 'right'}}>Total Fuel Cost: 1,887,694</p>
-              <p style={{textAlign: 'right'}}>Total Carbon Emission (CO2/kg): 7,264,658</p>
+              <p style={{textAlign: 'right'}}>Total Fuel Cost: {numberWithCommas(totalCost)}</p>
+              <p style={{textAlign: 'right'}}>Total Carbon Emission (CO2/kg): {numberWithCommas(totalEmission)}</p>
             </Col>
           </Row>
 
