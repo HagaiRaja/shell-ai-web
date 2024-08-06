@@ -20,6 +20,9 @@ export function Summary() {
   let insuranceCost = [], maintenanceCost = [], emission = []
 
   let car_left = {}
+  allData.fleet.map((car) => {
+    car_left[car[1]] = car[3]
+  })
   for (let year = allData.startYear; year <= allData.endYear; year++) {
     let curBuyCost = 0, curFuelCost = 0, curSellIncome = 0
     let curInsuranceCost = 0, curMaintenanceCost = 0, curEmission = 0

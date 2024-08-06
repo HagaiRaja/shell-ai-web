@@ -511,17 +511,18 @@ export function Content({ presetId }) {
 
           const can_use_car = sort_best_usage(year, car_left[s])
           const [avail_car, four_ineff] = get_4inefficient_car(can_use_car)
-
-          for (const [d, demand] of Object.entries(s_demand)) {
-            const idx = parseInt(d[1]) - 1;
-            if (four_ineff.length === idx) break
-            const car1 = await get_best_cars(year, s, true, 0, d)
-
-            const left_over_dist = cur_demand[s][d] % car1.yearRange
-            const [car_id_x, fuel_x, y_r_x, ek_x] = four_ineff[idx]
-            use_actions.push([year, car_id_x, 1, "Use", fuel_x, d, left_over_dist])
-            total_emission += left_over_dist*ek_x
-            cur_demand[s][d] -= left_over_dist
+          
+          for (let idx = 0; idx < 4; idx++) {
+            const d = `D${idx+1}`;
+            if (four_ineff.length > idx) {
+              const car1 = await get_best_cars(year, s, true, 0, d)
+  
+              const left_over_dist = cur_demand[s][d] % car1.yearRange
+              const [car_id_x, fuel_x, y_r_x, ek_x] = four_ineff[idx]
+              use_actions.push([year, car_id_x, 1, "Use", fuel_x, d, left_over_dist])
+              total_emission += left_over_dist*ek_x
+              cur_demand[s][d] -= left_over_dist
+            }
           }
 
           // use the rest to fullfill all demand with max capacity from d4 down to d1
@@ -583,7 +584,7 @@ export function Content({ presetId }) {
         }
 
         // removing 20% cars
-        if ((year !== allData.startYear) || allData.fleet.length) {
+        if (year !== allData.startYear) {
           const [new_car_left, target_sell, new_buy_actions, updated_use_actions] = await remove_20percent_usebase(all_use_actions)
           let all_sell_actions = []
           for (const [car_id, num] of Object.entries(target_sell)) {
