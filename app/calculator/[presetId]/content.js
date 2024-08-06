@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Container, Row, Col, Form, InputGroup } from 'react-bootstrap';
+import { Button, Container, Row, Col, Form, InputGroup, FloatingLabel } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useRef } from 'react'
@@ -21,6 +21,7 @@ export function Content({ presetId }) {
   const [baseData, setBaseData] = useState({})
   const [maxSellFleet, setMaxSellFleet] = useState(20)
   const [maxAgeFleet, setMaxAgeFleet] = useState(10)
+  const [statusQuo, setStatusQuo] = useState('None')
   const [loading, setLoading] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false)
   const fileInputRef = useRef(null);
@@ -226,6 +227,9 @@ export function Content({ presetId }) {
         const purchase_cost = car.cost * costProfiles[1].costPerYear / 100 // depreciation cost for 1y
         const total_usage_cost = usage_cost + purchase_cost
         if (min_d > parseInt(car.dist[1])) {
+          cost_per_km.push(9999999999999)
+        }
+        if ((statusQuo !== 'None') && (car.vehicle !== statusQuo)) {
           cost_per_km.push(9999999999999)
         }
         else {
@@ -680,6 +684,21 @@ export function Content({ presetId }) {
                 label={`Optimize sell expensive asset at end of the year`}
                 className='mb-2'
             /> */}
+        <FloatingLabel
+          controlid="startYear"
+          label="Status Quo"
+          className="mb-3"
+        >
+          <Form.Select aria-label="Default select example"
+                      onChange={(e) => setStatusQuo(e.target.value)}
+                      controlid="startYear"
+                      value={statusQuo}>
+              <option value={`None`}>{`None`}</option>
+              <option value={`LNG`}>{`LNG`}</option>
+              <option value={`Diesel`}>{`Diesel`}</option>
+              <option value={`Electricity`}>{`Electricity`}</option>
+          </Form.Select>
+        </FloatingLabel>
 
             <InputGroup className="mb-3">
               <InputGroup.Text id="basic-addon3">
