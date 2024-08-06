@@ -1,12 +1,13 @@
 
 import dynamic from 'next/dynamic';
+import { Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useSelector } from 'react-redux';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 import { numberWithCommas } from '@/app/utils'
 
-export function TotalCostChart({ totalCost }) {
+export function TotalCostChart({ totalCost, endOfYearAsset }) {
   const allData = useSelector((state) => state.data);
   if (allData?.result.length === 0) return <></>
 
@@ -40,14 +41,20 @@ export function TotalCostChart({ totalCost }) {
       labels: {
         formatter: numberWithCommas
       }
-    },
-    title: {
-      text: `Total Cost: ${numberWithCommas(totalCostSum)}`,
-      align: 'left'
     }
   };
 
   return <>
+    <Row>
+      <Col>
+        <h6><strong>{`Total Cost: ${numberWithCommas(totalCostSum)}`}</strong></h6>
+        <h6><strong>{`Net Cost: ${numberWithCommas(totalCostSum-endOfYearAsset)}`}</strong></h6>
+      </Col>
+      <Col>
+        <h6><strong>{`Asset at End of Year: ${numberWithCommas(endOfYearAsset)}`}</strong></h6>
+      </Col>
+    </Row>
+
     <Chart options={totalOptions} series={totalSeries} type="bar" height={350} />
   </>
 }

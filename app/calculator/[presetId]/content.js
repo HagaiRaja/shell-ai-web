@@ -311,7 +311,6 @@ export function Content({ presetId }) {
       // The rule to only allow sell 20% (allData.maxSellFleet) of the current fleet
       let plan_to_sell = Math.floor(total_car*allData.maxSellFleet/100)
       let car_left = {}, target_sell = {}, updated_actions = [], new_buy_actions = []
-      console.log("comparison", actions[0][0], comparison)
       comparison.map((el) => {
         const [prio, num, car_id1, car_id2, action] = el
         let [year, car_id, qty, act, fuel, d, dist] = action
@@ -599,7 +598,6 @@ export function Content({ presetId }) {
         actions2.push(...all_buy_actions)
         actions2.push(...good_use_actions)
         console.log(year, "buy", all_buy_actions)
-        console.log(year, "use before", all_use_actions)
         console.log(year, "use", good_use_actions)
         console.log(year, "emission", total_emission, new_total_emission, target_emission, new_total_emission <= target_emission)
 

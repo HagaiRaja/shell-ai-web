@@ -9,7 +9,7 @@ import { numberWithCommas } from '@/app/utils'
 export function DetailCostBreakdownChart({ unstackSeries }) {
   const allData = useSelector((state) => state.data);
   if (allData?.result.length === 0) return <></>
-  
+
   const unstackOptions = {
     chart: {
       type: 'bar'

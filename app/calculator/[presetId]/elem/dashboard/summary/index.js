@@ -19,10 +19,10 @@ export function Summary() {
   let buyCost = [], fuelCost = [], sellIncome = []
   let insuranceCost = [], maintenanceCost = [], emission = []
 
+  let car_left = {}
   for (let year = allData.startYear; year <= allData.endYear; year++) {
     let curBuyCost = 0, curFuelCost = 0, curSellIncome = 0
     let curInsuranceCost = 0, curMaintenanceCost = 0, curEmission = 0
-    let car_left = {}
     const buy = allData.result.filter((act) => ((act[0] === year) && (act[3] === "Buy")))
     buy.map((a) => {
       const [y, id, num, act, f, dist, y_r] = a
@@ -49,8 +49,9 @@ export function Summary() {
       const profileYearIdx = (targetProfileYear > maxYear[0]) ? maxYear[0] : targetProfileYear
       const profile = allData.costProfiles.filter((v) => (v[0] === profileYearIdx))
       const price = car[0][4], insurance = profile[0][2], maintenance = profile[0][3]
-      curInsuranceCost += parseInt(num * price * insurance/100)
-      curMaintenanceCost += parseInt(num * price * maintenance/100)
+      const iCost = parseInt(num * price * insurance/100), mCost = parseInt(num * price * maintenance/100)
+      curInsuranceCost += iCost
+      curMaintenanceCost += mCost
     }
 
     const sell = allData.result.filter((act) => ((act[0] === year) && (act[3] === "Sell")))
@@ -99,6 +100,16 @@ export function Summary() {
     }
   ];
 
+  let endOfYearAsset = 0
+  for (const [id, num] of Object.entries(car_left)) {
+    const car = allData.vehicles.filter((v) => (v[0] === id))
+    const targetProfileYear = (allData.endYear-car[0][3]+1), maxYear = allData.costProfiles[allData.costProfiles.length-1]
+    const profileYearIdx = (targetProfileYear > maxYear[0]) ? maxYear[0] : targetProfileYear
+    const profile = allData.costProfiles.filter((v) => (v[0] === profileYearIdx))
+    const price = car[0][4], resaleValue = profile[0][1]
+    endOfYearAsset += parseInt(num * price * resaleValue/100)
+  }
+
   let totalCost = Array.from({length: allData.endYear - allData.startYear+1},
                   (_, i) => i + allData.startYear);
   unstackSeries.map((series) => {
@@ -129,7 +140,7 @@ export function Summary() {
         <Accordion.Body>
 
           <EmissionChart target_emission={target_emission} emission={emission} />
-          <TotalCostChart totalCost={totalCost} />
+          <TotalCostChart totalCost={totalCost} endOfYearAsset={endOfYearAsset} />
           <CostBreakdownChart totalBuyCost={totalBuyCost} totalFuelCost={totalFuelCost} totalSellIncome={totalSellIncome}
             totalInsuranceCost={totalInsuranceCost} totalMaintenanceCost={totalMaintenanceCost}
           />
