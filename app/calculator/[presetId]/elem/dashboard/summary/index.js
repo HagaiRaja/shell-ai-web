@@ -7,6 +7,10 @@ import { useState, useEffect, useRef } from 'react'
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 import { numberWithCommas } from '@/app/utils'
+import { EmissionChart } from './emission'
+import { TotalCostChart } from './total-cost'
+import { CostBreakdownChart } from './cost-breakdown'
+import { DetailCostBreakdownChart } from './detail-cost-breakdown'
 
 export function Summary() {
   const allData = useSelector((state) => state.data);
@@ -111,172 +115,26 @@ export function Summary() {
   let target_emission = Array.from({length: allData.endYear - allData.startYear+1},
     (_, i) => parseInt(((((100-allData.emissionReductionTarget)/100)**i)*allData.startEmission))
   );
-  
-  const unstackOptions = {
-    chart: {
-      type: 'bar'
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: '55%'
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    xaxis: {
-      categories: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear)
-    },
-    yaxis: {
-      title: {
-        text: 'Cost ($)'
-      },
-      labels: {
-        formatter: numberWithCommas
-      },
-    },
-    title: {
-      text: 'Detail Cost Breakdown',
-      align: 'left'
-    }
-  };
-
-  const totalCostSum = totalCost.reduce((a, b) => a + b, 0)
-
-  const totalSeries = [
-    {
-      name: 'Cost',
-      data: totalCost
-    }
-  ];
-  const totalOptions = {
-    chart: {
-      type: 'bar'
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: '55%'
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    xaxis: {
-      categories: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear)
-    },
-    yaxis: {
-      title: {
-        text: 'Cost ($)'
-      },
-      labels: {
-        formatter: numberWithCommas
-      }
-    },
-    title: {
-      text: `Total Cost: ${numberWithCommas(totalCostSum)}`,
-      align: 'left'
-    }
-  };
-
-  const emissionSeries = [{
-    name: 'Target Emission',
-    type: 'area',
-    data: target_emission
-  }, {
-    name: 'Emission',
-    type: 'line',
-    data: emission
-  }
-  ]
-  const emissionOptions = {
-    chart: {
-      height: 350,
-      type: 'line',
-    },
-    stroke: {
-      curve: 'smooth'
-    },
-    fill: {
-      type:'solid',
-      opacity: [0.35, 1],
-    },
-    labels: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear),
-    markers: {
-      size: 0
-    },
-    yaxis: [
-      {
-        title: {
-          text: 'Emission (CO2/kg)',
-        },
-        labels: {
-          formatter: numberWithCommas
-        },
-      }
-    ],
-    tooltip: {
-      shared: true,
-      intersect: false,
-      y: {
-        formatter: function (y) {
-          if(typeof y !== "undefined") {
-            return  numberWithCommas(y) + " CO2/kg";
-          }
-          return y;
-        }
-      }
-    },
-    title: {
-      text: 'Emission Trend',
-      align: 'left'
-    },
-  };
 
   const totalBuyCost = buyCost.reduce((a, b) => a + b, 0)
   const totalFuelCost = fuelCost.reduce((a, b) => a + b, 0)
   const totalSellIncome = sellIncome.reduce((a, b) => a + b, 0)
   const totalInsuranceCost = insuranceCost.reduce((a, b) => a + b, 0)
   const totalMaintenanceCost = maintenanceCost.reduce((a, b) => a + b, 0)
-  const costBreakdownSeries = [totalBuyCost, totalFuelCost, totalSellIncome, totalInsuranceCost, totalInsuranceCost]
-  const costBreakdownOption = {
-    chart: {
-      width: 380,
-      type: 'pie',
-    },
-    title: {
-      text: 'Cost Breakdown',
-      align: 'left'
-    },
-    yaxis: {
-      labels: {
-        formatter: numberWithCommas
-      }
-    },
-    labels: ['Buy Cost (-)', 'Fuel Cost (-)', 'Sell Income (+)', 'Insurance Cost (-)', 'Maintenance Cost (-)'],
-    responsive: [{
-      breakpoint: 480,
-      options: {
-        chart: {
-          width: 200
-        },
-        legend: {
-          position: 'bottom'
-        }
-      }
-    }]
-  };
 
   return <>
     <Accordion defaultActiveKey="summary" className='mb-2'>
       <Accordion.Item eventKey="summary">
         <Accordion.Header>Summary</Accordion.Header>
         <Accordion.Body>
-          <Chart options={emissionOptions} series={emissionSeries} type="line" height={350} />
-          <Chart options={totalOptions} series={totalSeries} type="bar" height={350} />
-          <Chart options={costBreakdownOption} series={costBreakdownSeries} type="pie" height={300} />
-          <Chart options={unstackOptions} series={unstackSeries} type="bar" height={350} />
+
+          <EmissionChart target_emission={target_emission} emission={emission} />
+          <TotalCostChart totalCost={totalCost} />
+          <CostBreakdownChart totalBuyCost={totalBuyCost} totalFuelCost={totalFuelCost} totalSellIncome={totalSellIncome}
+            totalInsuranceCost={totalInsuranceCost} totalMaintenanceCost={totalMaintenanceCost}
+          />
+          <DetailCostBreakdownChart unstackSeries={unstackSeries} />
+          
         </Accordion.Body>
       </Accordion.Item>
     </Accordion>
