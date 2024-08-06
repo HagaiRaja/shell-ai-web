@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import { DataGrid } from '@mui/x-data-grid';
 import { useSelector } from 'react-redux';
 
-import { numberWithCommas } from '@/app/utils'
+import { numberWithCommas, createRandomString } from '@/app/utils'
 
 export function UseRecommendation({year}) {
   const result = useSelector((state) => state.data.result);
@@ -12,7 +12,7 @@ export function UseRecommendation({year}) {
   if (result.length === 0) return <></>;
   
   const columns = [
-    { field: 'id', headerName: 'ID', align:'right', headerAlign: 'right', flex:2 },
+    { field: 'veh_id', headerName: 'ID', align:'right', headerAlign: 'right', flex:2 },
     { field: 'num', headerName: 'Quantity', align:'right', headerAlign: 'right', flex:1, type:"number" },
     { field: 'fuel', headerName: 'Fuel', align:'right', headerAlign: 'right', flex:1 },
     { field: 'dist', headerName: 'Distance Bucket', align:'right', headerAlign: 'right', flex:2},
@@ -24,15 +24,15 @@ export function UseRecommendation({year}) {
   const use = result.filter((act) => ((act[0] === year) && (act[3] === "Use")))
   let series = [], totalCost = 0, totalEmission = 0
   use.map((a) => {
-    const [y, id, num, act, fuel, dist, distPer] = a
-    const vf = vehiclesFuels.filter((v) => (v[0] === id))
+    const [y, veh_id, num, act, fuel, dist, distPer] = a
+    const vf = vehiclesFuels.filter((v) => (v[0] === veh_id))
     const fuelData = fuels.filter((v) => ((v[0] === fuel) && (v[1] === year)))
     const pricePerFuel = fuelData[0][3], emissionPerFuel = fuelData[0][2], fuelPerKm = vf[0][2]
     const cost = parseInt(num * distPer * fuelPerKm * pricePerFuel)
     const emission = parseInt(num * distPer * fuelPerKm * emissionPerFuel)
     totalCost += cost
     totalEmission += emission
-    series.push({id, num, fuel, dist, distPer, cost, emission})
+    series.push({id: createRandomString(5), veh_id, num, fuel, dist, distPer, cost, emission})
   })
 
   return <>

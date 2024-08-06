@@ -580,7 +580,7 @@ export function Content({ presetId }) {
         }
 
         // removing 20% cars
-        if (year !== allData.startYear) {
+        if ((year !== allData.startYear) || allData.fleet.length) {
           const [new_car_left, target_sell, new_buy_actions, updated_use_actions] = await remove_20percent_usebase(all_use_actions)
           let all_sell_actions = []
           for (const [car_id, num] of Object.entries(target_sell)) {

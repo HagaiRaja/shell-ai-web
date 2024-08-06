@@ -9,6 +9,7 @@ import { setValue } from '../store/dataSlice';
 
 export function YearSelector() {
   const vehicles = useSelector((state) => state.data.vehicles);
+  const fleet = useSelector((state) => state.data.fleet);
   const selectedStartYear = useSelector((state) => state.data.startYear);
   const selectedEndYear = useSelector((state) => state.data.endYear);
   const dispatch = useDispatch();
@@ -45,12 +46,15 @@ export function YearSelector() {
 
   if (vehicles === null) return notFound();
 
-  const adjustEndYear = (e) => {
+  const updateStartYear = (e) => {
     const newStartYear = parseInt(e.target.value);
     dispatch(setValue({type: "storeVar", target: "startYear", payload: newStartYear}));
     if (newStartYear >= selectedEndYear) {
       dispatch(setValue({type: "storeVar", target: "endYear", payload: newStartYear+1}));
     }
+    // update fleet
+    let newFleet = fleet.filter((car) => (parseInt(car[0]) < newStartYear))
+    dispatch(setValue({type: "storeVar", target: "fleet", payload: newFleet}));
   };
 
   const updateEndYear = (e) => {
@@ -68,7 +72,7 @@ export function YearSelector() {
           className="mb-3"
         >
           <Form.Select aria-label="Default select example"
-                      onChange={adjustEndYear}
+                      onChange={updateStartYear}
                       controlid="startYear"
                       value={selectedStartYear}>
             {startYears.map(year => (
