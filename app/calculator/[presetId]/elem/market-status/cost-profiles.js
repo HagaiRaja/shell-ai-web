@@ -52,9 +52,14 @@ export function CostProfiles() {
               <DataGrid
                 rows={rows}
                 columns={columns}
-                hideFooter={true}
                 autoHeight
                 processRowUpdate={updateData}
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: 5, page: 0 },
+                  },
+                }}
+                pageSizeOptions={[5, 10, 25]}
               />
             </Accordion.Body>
         </Accordion.Item>

@@ -678,12 +678,12 @@ export function Content({ presetId }) {
         <Row className='mt-3'>
           <h6>Rules:</h6>
           <Form>
-            <Form.Check // prettier-ignore
+            {/* <Form.Check // prettier-ignore
                 type='checkbox'
                 id='optimize-end'
                 label={`Optimize sell expensive asset at end of the year`}
                 className='mb-2'
-            />
+            /> */}
 
             <InputGroup className="mb-3">
               <InputGroup.Text id="basic-addon3">
