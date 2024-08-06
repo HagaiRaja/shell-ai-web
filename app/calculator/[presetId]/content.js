@@ -86,7 +86,7 @@ export function Content({ presetId }) {
   }
 
   const calculate = async () => {
-    // await setLoading(true) # TODO: Remove this
+    setLoading(true) // TODO: Remove this
     const fuelCache = {};
     // year.fuel: cost, emissions, uncertainty
     await allData.fuels.map((f) => {
@@ -630,9 +630,7 @@ export function Content({ presetId }) {
     console.log("result", submit)
     dispatch(setValue({type: "storeVar", target: "result",
                         payload: submit}))
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000);
+    setLoading(false)
   }
 
   const clickReset = () => {
