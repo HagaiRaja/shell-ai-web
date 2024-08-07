@@ -229,7 +229,7 @@ export function Content({ presetId }) {
         if (min_d > parseInt(car.dist[1])) {
           cost_per_km.push(9999999999999)
         }
-        if ((statusQuo !== 'None') && (car.vehicle !== statusQuo)) {
+        else if ((statusQuo !== 'None') && (car.vehicle !== statusQuo)) {
           cost_per_km.push(9999999999999)
         }
         else {
@@ -297,7 +297,7 @@ export function Content({ presetId }) {
         // the cars are unusable so it's better to sell 5 years before the end period
         let end_period_cost = 0
         if ((year - spec.year) > (allData.maxAgeFleet-1)){
-          if ((10 - (year - spec.year)) < 1){
+          if ((10 - (year - spec.year)) <= 1){
             end_period_cost = spec.cost
           }
           else {
@@ -305,12 +305,16 @@ export function Content({ presetId }) {
           }
         }
 
-        if (spec.year !== year){
-          comparison.push([(dep1+usa1) - (dep2+usa2) + end_period_cost, num, car_id1, car_id2, action])
-          total_car += num
+        comparison.push([(dep1+usa1) - (dep2+usa2) + end_period_cost, num, car_id1, car_id2, action])
+        total_car += num
+      })
+      comparison.sort((a, b) => {
+        if (a[0] === b[0]) {
+          return b[1] - a[1];
+        } else {
+          return b[0] - a[0];
         }
       })
-      comparison.sort((a, b) => a[0] - b[0]).reverse()
 
       // The rule to only allow sell 20% (allData.maxSellFleet) of the current fleet
       let plan_to_sell = Math.floor(total_car*allData.maxSellFleet/100)
@@ -548,7 +552,8 @@ export function Content({ presetId }) {
           }
 
           // buy if we need more and use
-          for (const [d, demand] of Object.entries(s_demand)) {
+          for (let d_idx = 4; d_idx > 0; d_idx--) {
+            const d = `D${d_idx}`
             if (cur_demand[s][d] > 0) {
               const car1 = await get_best_cars(year, s, true, 0, d)
               const car_id1 = `${car1.vehicle}_${car1.size}_${car1.year}-${car1.fuel}`
