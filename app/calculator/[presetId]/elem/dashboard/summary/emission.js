@@ -32,7 +32,9 @@ export function EmissionChart({target_emission, emission}) {
       type:'solid',
       opacity: [0.35, 1],
     },
-    labels: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear),
+    xaxis: {
+      categories: Array.from({length: allData.endYear - allData.startYear+1}, (_, i) => i + allData.startYear)
+    },
     markers: {
       size: 0
     },
