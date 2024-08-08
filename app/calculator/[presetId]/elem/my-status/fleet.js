@@ -37,24 +37,27 @@ export function Fleet() {
         years.push(i)
       }
       setReleaseYears(years)
-
-      if (curCarID != "") {
-        const car = vehicles.filter((a) => a[0] == curCarID)
-        setCurCarExpectedPrice(car[0][4])
+      
+      if (years.length && (curCarYear === 0)) {
+        adjustAvailCarIds(years[0]);
       }
     }
   }, [selectedStartYear, vehicles, curCarID, minYear, isLoaded]);
 
-  const adjustAvailCarIds = (e) => {
-    const newYear = parseInt(e.target.value);
+  const adjustAvailCarIds = (newYear) => {
     setCurCarYear(newYear);
-    setAvailCarIds(vehicles.filter((a) => a[3] == newYear));
+    const curVehicles = vehicles.filter((a) => a[3] == newYear);
+    setAvailCarIds(curVehicles);
+    if (curVehicles.length) {
+      adjustCurCarPrice(curVehicles[0][0])
+    }
   };
 
-  const adjustCurCarPrice = (e) => {
-    setCurCarID(e.target.value)
-    const car = vehicles.filter((a) => a[0] == e.target.value)
+  const adjustCurCarPrice = (carId) => {
+    const car = vehicles.filter((a) => a[0] == carId)
     setCurCarPrice(car[0][4])
+    setCurCarID(carId)
+    setCurCarExpectedPrice(car[0][4])
     setCurCarQty(1)
     setIsChanged(false)
     setIsChangedQty(false)
@@ -79,7 +82,7 @@ export function Fleet() {
               <Col>
                   <Form.Label>Release Year</Form.Label>
                   <Form.Select aria-label="Default select example"
-                              onChange={adjustAvailCarIds}
+                              onChange={(e) => adjustAvailCarIds(parseInt(e.target.value))}
                               controlid="carYear"
                               >
                   {releaseYears.map(year => (
@@ -90,7 +93,7 @@ export function Fleet() {
                 <Col xs={4}>
                   <Form.Label>Vehicle ID</Form.Label>
                   <Form.Select aria-label="Default select example"
-                              onChange={adjustCurCarPrice}
+                              onChange={(e) => adjustCurCarPrice(e.target.value)}
                               controlid="vehicleId"
                               // value={null}
                               >
