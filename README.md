@@ -10,7 +10,15 @@ After all the value is confirmed, user can click "Calculate" button and the web-
 
 User can also download or export the result in CSV or JSON format to keep or share the planning result obtained. Please give it a try and let us know if your have any feedback! Thank you.
 
-## ⚙️ Install
+## 💫 Demo
+
+We also share the live demo and all related content to our protoype!
+
+- [LIVE Demo] [Try me Here](https://shell-ai-web.vercel.app/)
+- [Pitch Video](https://www.youtube.com/watch?v=PvfuHVSO77I)
+- [Pitch Deck](https://www.canva.com/design/DAGM6aj_FgU/3g5LJKThqgOekfUR3rj6PA/edit?utm_content=DAGM6aj_FgU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
+## ⚙️ Local Setup
 
 Install pnpm, the prototype was developed using version 9.5.0
 
@@ -19,4 +27,14 @@ pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 👨‍💻 Usage
+
+Open [http://localhost:3000](http://localhost:3000) or the [Live Demo](https://shell-ai-web.vercel.app) with your browser. We would recommend to use PC/Laptop and Chrome.
+
+Calculator page with default value
+https://shell-ai-web.vercel.app
+http://localhost:3000
+
+Upload your own data
+https://shell-ai-web.vercel.app/upload
+http://localhost:3000/upload
