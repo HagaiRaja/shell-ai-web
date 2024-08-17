@@ -1,14 +1,21 @@
-# File Upload Example
+# Fleet ZeroAI by Kamandaka Jalan
 
-This shows how you can upload a file to Next.js 13 in the app directory using
-both client and server components. The client example is found in `app/page.tsx`
-and the server example is found in `app/server/page.tsx`.
+### ⭐️ Top 20 Solution of [Shell.ai Hackathon 2024 General Edition](https://www.hackerearth.com/challenges/new/competitive/shellai-hackathon-2024/)
 
-## Getting Started
+This repository contains Kamandaka Jalan official prototype for [Shell.ai Hackathon phase 2](https://shellaihackathon2024level2.hackerearth.com/).
 
-First, run the development server:
+The solution is a web-based calculator which prepopulated with the official demand, carbon emission target, vehicles, fuels, and cost profiles data. Fleet owners as the user can adjust the value for each field especially the demand and carbon emission reduction target according to their own needs.
+
+After all the value is confirmed, user can click "Calculate" button and the web-app will execute our optimization function to find the best list of actions that user can do to achieve their target with the least cost. We provide key metrics such as the emission trend and cost breakdown showcased in an interactive chart.
+
+User can also download or export the result in CSV or JSON format to keep or share the planning result obtained. Please give it a try and let us know if your have any feedback! Thank you.
+
+## ⚙️ Install
+
+Install pnpm, the prototype was developed using version 9.5.0
 
 ```bash
+pnpm install
 pnpm dev
 ```
 
