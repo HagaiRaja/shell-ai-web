@@ -675,7 +675,7 @@ export function Content({ presetId }) {
   return (
     <div>
       {loading && <LoadingSpinner />}
-      <Container className='p-2 mt-4 mb-2 w-50' style={{minWidth: '700px'}}>
+      <Container className='p-2 mt-4 mb-2 w-50' style={{minWidth: '350px', maxWidth: '700px'}}>
         <h1 className='text-center'>Shell Fleet Zero AI</h1>
         <YearSelector />
         <MyStatus />

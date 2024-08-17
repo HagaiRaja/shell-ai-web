@@ -68,7 +68,7 @@ export default function Home() {
 
   return (
     <main>
-      <Container className='p-2 mt-4 mb-2'>
+      <Container className='p-2 mt-4 mb-2' style={{minWidth: '350px', maxWidth: '700px'}}>
         <h1 className='text-center'>Upload file</h1>
         <Row>
           <Form onSubmit={onSubmit}>
