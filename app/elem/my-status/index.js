@@ -1,9 +1,9 @@
 
 import { Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
-import { Demand } from "./my-status/demand";
-import { CarbonEmissions } from "./my-status/carbon-emissions";
-import { Fleet } from "./my-status/fleet";
+import { Demand } from "./demand";
+import { CarbonEmissions } from "./carbon-emissions";
+import { Fleet } from "./fleet";
 
 
 export function MyStatus() {

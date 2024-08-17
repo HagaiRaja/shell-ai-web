@@ -1,8 +1,8 @@
 
 import { Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
-import { Vehicles } from "./market-status/vehicles";
-import { CostProfiles } from "./market-status/cost-profiles";
+import { Vehicles } from "./vehicles";
+import { CostProfiles } from "./cost-profiles";
 
 
 export function MarketStatus() {

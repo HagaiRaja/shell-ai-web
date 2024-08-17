@@ -3,8 +3,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import { SaveAlt, LocalPrintshop } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Summary } from './dashboard/summary';
-import { Recommendation } from './dashboard/recommendation';
+import { Summary } from './summary';
+import { Recommendation } from './recommendation';
 
 export function Dashboard() {
   const allData = useSelector((state) => state.data);
