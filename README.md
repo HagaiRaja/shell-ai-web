@@ -38,3 +38,7 @@ http://localhost:3000
 Upload your own data
 https://shell-ai-web.vercel.app/upload
 http://localhost:3000/upload
+
+## 🧠 Contributor
+- @hagairaja: idea, design, implementation
+- @eunikeputriii: idea, report 
